@@ -61,4 +61,61 @@ textarea {
 .el-autocomplete-suggestion {
   width: auto !important;
 }
+
+// 所有的输入框 下拉框 级联选择器样式修改
+.el-cascader {
+  line-height: 32px !important;
+  width: 100%;
+  height: 100%;
+}
+.el-select {
+  line-height: 32px !important;
+  width: 100%;
+  height: 100% !important;
+}
+.el-select-dropdown__item {
+  &.between {
+    display: flex;
+    justify-content: space-between;
+    .gray {
+      color: #8492a6;
+    }
+  }
+}
+.el-autocomplete {
+  line-height: 32px !important;
+  width: 100%;
+  height: 100%;
+}
+.filterCtn {
+  .el-input__inner {
+    line-height: 32px !important;
+    height: 32px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
+.el-input {
+  height: 100%;
+  .el-input__inner {
+    height: 100% !important;
+    line-height: 32px;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+    &:hover {
+      border-color: #c0c4cc !important;
+    }
+    &:focus {
+      border-color: #1a94ff !important;
+    }
+  }
+  .el-input__suffix,
+  .el-input__icon {
+    line-height: 32px;
+  }
+  .el-focus {
+    .el-input__inner {
+      border-color: #1a94ff !important;
+    }
+  }
+}
 </style>

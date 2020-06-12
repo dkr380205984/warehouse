@@ -101,7 +101,7 @@ export default {
           if (_this.$route.query.nextUrl) {
             _this.$router.push(_this.$route.query.nextUrl)
           } else {
-            _this.$router.push('/homePage/homePage')
+            _this.$router.push('/storeDetail')
           }
         } else {
           this.$message.error({
