@@ -14,7 +14,7 @@ module.exports = {
     port: 8777,
     https: false,
     proxy: {
-      '/dress': {
+      '/store': {
         target: TARGET, // 对应自己的接口
         changeOrigin: true,
         ws: true
