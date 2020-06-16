@@ -2,7 +2,7 @@
   <div class="indexMain">
     <div class="header">
       <div class="main">
-        <div class="text1">欢迎登陆仓储管理系统，XXX</div>
+        <div class="text1">欢迎使用仓储管理系统</div>
         <div class="text2"
           @click="logOut">登出系统</div>
       </div>

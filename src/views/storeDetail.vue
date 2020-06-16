@@ -1,6 +1,7 @@
 <template>
   <div id="storeDetail"
-    class="contentMain">
+    class="contentMain"
+    v-loading="loading">
     <div class="module">
       <div class="titleCtn">
         <span class="title">产品列表</span>
@@ -12,17 +13,21 @@
           <div class="leftCtn">
             <span class="label">筛选条件：</span>
             <el-input class="inputs"
-              v-model="storeName"
+              v-model="proName"
               @change="getProList"
-              placeholder="请输入编号/名称查询"></el-input>
+              placeholder="请输入产品名称查询"></el-input>
             <el-date-picker class="inputs"
-              v-model="storeDate"
+              value-format="yyyy-MMM-dd"
+              v-model="proDate"
               type="date"
               @change="getProList"
               placeholder="选择日期">
             </el-date-picker>
+            <div class="btn btnBlue"
+              style="margin-left:0px"
+              @click="getProList">搜索</div>
             <div class="btn btnGray"
-              style="margin-left:0"
+              style="margin-left:12px"
               @click="reset('pro')">重置</div>
           </div>
         </div>
@@ -35,15 +40,17 @@
                 <div class="tcolumn">产品名称/款号</div>
                 <div class="tcolumn">产品图片</div>
                 <div class="tcolumn noPad"
-                  style="flex:7">
+                  style="flex:8">
                   <div class="trow">
                     <div class="tcolumn">尺码配色</div>
                     <div class="tcolumn">库存数量</div>
                     <div class="tcolumn">销售数量</div>
-                    <div class="tcolumn">入库均价/总价</div>
-                    <div class="tcolumn">销售均价/总价</div>
+                    <!-- <div class="tcolumn">入库均价/总价</div> -->
+                    <div class="tcolumn">销售均价</div>
+                    <div class="tcolumn">销售总额</div>
                     <div class="tcolumn">更新日期</div>
-                    <div class="tcolumn">操作</div>
+                    <div class="tcolumn"
+                      style="flex:1.3;">操作</div>
                   </div>
                 </div>
               </div>
@@ -52,31 +59,49 @@
               <div class="trow"
                 v-for="item in productList"
                 :key="item.id">
-                <div class="tcolumn">ABC123456
-                  <span style="cursor:pointer;color:#1a95ff"
-                    @click="goUpdatePro(item)">(修改产品)</span>
+                <div class="tcolumn">{{item.product_code}}
+                  <div>
+                    <span style="cursor:pointer;color:#1a95ff;margin-right:12px"
+                      @click="goUpdatePro(item)">修改</span>
+                    <span style="cursor:pointer;color:rgb(245, 34, 45)"
+                      @click="deleteProReal(item.id)">删除产品</span>
+                  </div>
                 </div>
-                <div class="tcolumn">产品名称/款号</div>
-                <div class="tcolumn">产品图片</div>
+                <div class="tcolumn">
+                  <span style="color:#1a95ff">{{item.name}}</span>
+                  <span>{{item.style_code}}</span></div>
+                <div class="tcolumn">
+                  <zh-img-list :list="item.image"></zh-img-list>
+                </div>
                 <div class="tcolumn noPad"
-                  style="flex:7">
+                  style="flex:8">
                   <div class="trow"
-                    v-for="itemChild in item.arr"
-                    :key="itemChild.size_id">
-                    <div class="tcolumn">尺码配色</div>
-                    <div class="tcolumn">库存数量</div>
-                    <div class="tcolumn">销售数量</div>
-                    <div class="tcolumn">销售总价</div>
-                    <div class="tcolumn">均价</div>
-                    <div class="tcolumn">更新日期</div>
-                    <div class="tcolumn fuck">
+                    v-for="(itemChild,indexChild) in item.size_info"
+                    :key="indexChild">
+                    <div class="tcolumn">{{itemChild.size_name}}/{{itemChild.color_name}}</div>
+                    <div class="tcolumn">{{itemChild.total_number}}</div>
+                    <div class="tcolumn">{{itemChild.sell_number}}</div>
+                    <div class="tcolumn">
+                      <div>
+                        <span style="color:#1a95ff">{{itemChild.sell_avg_price}}</span>元
+                      </div>
+                    </div>
+                    <div class="tcolumn">
+                      <div>
+                        <!-- <span style="color:#1a95ff">{{itemChild.sell_avg_price}}</span>元 / -->
+                        <span style="color:#01B48C">{{itemChild.sell_total_price}}</span>元
+                      </div>
+                    </div>
+                    <div class="tcolumn">{{itemChild.update_time.slice(0,10)}}</div>
+                    <div class="tcolumn fuck"
+                      style="flex:1.3;justify-content: space-around;">
                       <span class="btn noBorder self"
-                        @click="addPro(item.id,itemChild.size_id,1)">入库</span>
+                        @click="addPro(item.id,itemChild.id,1)">入库</span>
                       <span class="btn noBorder self"
-                        @click="addPro(item.id,itemChild.size_id,2)">出库</span>
+                        @click="addPro(item.id,itemChild.id,2)">出库</span>
                       <span class="btn noBorder self"
                         style="color:rgb(245, 34, 45)"
-                        @click="deleteSizeColor(item.id,itemChild.size_id)">删除</span>
+                        @click="deleteSizeColor(itemChild.id)">删除尺码</span>
                     </div>
                   </div>
                 </div>
@@ -97,7 +122,16 @@
                   </div>
                   <div class="content">
                     <el-select placeholder="请选择产品编号"
-                      v-model="item.id"></el-select>
+                      filterable
+                      remote
+                      :remote-method="searchProList"
+                      @change="getColorSize"
+                      v-model="item.id">
+                      <el-option v-for="item in proSelectList"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id"></el-option>
+                    </el-select>
                   </div>
                 </div>
                 <div class="colCtn">
@@ -107,16 +141,21 @@
                   </div>
                   <div class="content">
                     <el-select placeholder="请选择操作类型"
-                      v-model="item.type"></el-select>
+                      v-model="item.type">
+                      <el-option :value='1'
+                        label="入库"></el-option>
+                      <el-option :value='2'
+                        label="出库"></el-option>
+                    </el-select>
                   </div>
                 </div>
                 <div class="colCtn">
                   <div class="label">
-                    <span class="text">供货单位</span>
+                    <span class="text">出入库单位</span>
                     <span class="explanation">(选填)</span>
                   </div>
                   <div class="content">
-                    <el-input placeholder="请输入供货单位名称"
+                    <el-input placeholder="请输入出入库单位名称"
                       v-model="item.client"></el-input>
                   </div>
                 </div>
@@ -132,7 +171,12 @@
                   </div>
                   <div class="content">
                     <el-select placeholder="请选择尺码颜色"
-                      v-model="itemChild.colorSize"></el-select>
+                      v-model="itemChild.colorSize">
+                      <el-option v-for="(itemSize,indexSize) in getColorSize(item.id)"
+                        :label="itemSize.size_name + '/' + itemSize.color_name"
+                        :value="itemSize.id"
+                        :key="indexSize"></el-option>
+                    </el-select>
                   </div>
                 </div>
                 <div class="colCtn">
@@ -171,7 +215,7 @@
                     <span class="explanation">(必填)</span>
                   </div>
                   <div class="content">
-                    <el-select placeholder="请选择尺码颜色"
+                    <el-select placeholder="请选择仓库/货架"
                       v-model="item.store_id">
                       <el-option v-for="item in stockArr"
                         :key="item.id"
@@ -204,7 +248,7 @@
             <div class="addRows">
               <span v-if="!addProFlag"
                 class="once gray"
-                @click="addPro">添加产品</span>
+                @click="addPro()">添加产品</span>
               <span v-if="addProFlag"
                 class="once cancle"
                 @click="cancle">取消</span>
@@ -219,7 +263,7 @@
         </div>
         <div class="pageCtn">
           <el-pagination background
-            :page-size="10"
+            :page-size="5"
             layout="prev, pager, next"
             :total="totalPro"
             :current-page.sync="pagePro"
@@ -239,23 +283,33 @@
           <div class="leftCtn">
             <span class="label">筛选条件：</span>
             <el-input class="inputs"
-              v-model="proName"
+              v-model="storeName"
               @change="getStoreLogList"
-              placeholder="请输入编号查询"></el-input>
+              placeholder="请输入产品名称查询"></el-input>
+            <el-autocomplete class="inputs"
+              v-model="clientName"
+              :fetch-suggestions="querySearchClient"
+              @change="getStoreLogList"
+              placeholder="请输入出入库单位查询"></el-autocomplete>
             <el-date-picker class="inputs"
-              v-model="proDate"
+              v-model="storeDate"
               type="date"
+              value-format="yyyy-MMM-dd"
               @change="getStoreLogList"
               placeholder="选择日期">
             </el-date-picker>
+            <div class="btn btnBlue"
+              style="margin-left:0px"
+              @click="getStoreLogList">搜索</div>
             <div class="btn btnGray"
-              style="margin-left:0"
+              style="margin-left:12px"
               @click="reset('store')">重置</div>
           </div>
           <div class="leftCtn">
             <div class="btn noBorder"
               @click="deleteLog(null,true)">批量删除</div>
-            <div class="btn noBorder">批量打印</div>
+            <div class="btn noBorder"
+              @click="download">批量导出</div>
           </div>
         </div>
         <div class="rowCtn">
@@ -270,13 +324,14 @@
                       @change="checkAllLog"></el-checkbox>
                   </div>
                   <div class="tcolumn">产品编号</div>
-                  <div class="tcolumn">产品名称</div>
-                  <div class="tcolumn">款号</div>
+                  <div class="tcolumn">名称/款号</div>
+                  <div class="tcolumn">仓库名称</div>
                   <div class="tcolumn">尺码颜色</div>
                   <div class="tcolumn">单价</div>
+                  <div class="tcolumn">数量</div>
                   <div class="tcolumn">总价</div>
                   <div class="tcolumn">操作类型</div>
-                  <div class="tcolumn">供货单位</div>
+                  <div class="tcolumn">出入库单位</div>
                   <div class="tcolumn">备注</div>
                   <div class="tcolumn">操作人</div>
                   <div class="tcolumn">操作时间</div>
@@ -291,17 +346,24 @@
                     style="flex:0.2">
                     <el-checkbox v-model="item.check"></el-checkbox>
                   </span>
-                  <div class="tcolumn">产品编号</div>
-                  <div class="tcolumn">产品名称</div>
-                  <div class="tcolumn">款号</div>
-                  <div class="tcolumn">尺码颜色</div>
-                  <div class="tcolumn">单价</div>
-                  <div class="tcolumn">总价</div>
-                  <div class="tcolumn">操作类型</div>
-                  <div class="tcolumn">供货单位</div>
-                  <div class="tcolumn">备注</div>
-                  <div class="tcolumn">操作人</div>
-                  <div class="tcolumn">操作时间</div>
+                  <div class="tcolumn"
+                    style="color:#1a95ff;">
+                    <span>{{item.product_info.product_code}}</span></div>
+                  <div class="tcolumn">
+                    <span style="color:#1a95ff">{{item.product_info.name}}</span>
+                    <span>{{item.product_info.style_code}}</span>
+                  </div>
+                  <div class="tcolumn">{{item.store_name}}</div>
+                  <div class="tcolumn">{{item.size_info.size_name}}/{{item.size_info.color_name}}</div>
+                  <div class="tcolumn">{{item.price}}元</div>
+                  <div class="tcolumn">{{item.number}}</div>
+                  <div class="tcolumn">{{parseInt(item.price*item.number)}}元</div>
+                  <div class="tcolumn"
+                    :style="item.action_type===1 ? 'color:#1a95ff':item.action_type===2?'color:rgb(1, 180, 140)':item.action_type===3?'color:rgb(245, 34, 45)':''">{{actionArr[item.action_type]}}</div>
+                  <div class="tcolumn">{{item.client_name}}</div>
+                  <div class="tcolumn">{{item.desc}}</div>
+                  <div class="tcolumn">{{item.user_name}}</div>
+                  <div class="tcolumn">{{item.created_at.date.slice(0,10)}}</div>
                   <div class="tcolumn">
                     <span style="color:#F5222D;cursor:pointer"
                       @click="deleteLog(item.id)">删除</span>
@@ -351,12 +413,18 @@
             :key="indexChild">
             <div class="label">{{indexChild===0?'产品信息：':''}}</div>
             <div class="info flex">
-              <el-input v-model="itemChild.size"
-                placeholder="尺码"></el-input>
-              <el-input v-model="itemChild.color"
-                placeholder="颜色"></el-input>
+              <el-autocomplete style="margin-right:12px"
+                v-model="itemChild.size"
+                :fetch-suggestions="querySearchSize"
+                placeholder="尺码"></el-autocomplete>
+              <el-autocomplete style="margin-right:12px"
+                v-model="itemChild.color"
+                :fetch-suggestions="querySearchColor"
+                placeholder="颜色"></el-autocomplete>
               <el-input v-model="itemChild.price"
-                placeholder="单价"></el-input>
+                placeholder="单价">
+                <template slot="append">元</template>
+              </el-input>
               <el-input v-model="itemChild.number"
                 placeholder="数量"></el-input>
             </div>
@@ -371,7 +439,21 @@
             <div class="label">选择仓库：</div>
             <div class="info">
               <el-select placeholder="请选择仓库"
-                v-model="productInfo.store_id"></el-select>
+                v-model="productInfo.store_id">
+                <el-option v-for="item in stockArr"
+                  :key="item.id"
+                  :value="item.id"
+                  :label="item.name"></el-option>
+              </el-select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label">出入库单位：</div>
+            <div class="info">
+              <el-autocomplete class="inline-input"
+                v-model="productInfo.client_name"
+                :fetch-suggestions="querySearchClient"
+                placeholder="请输入出入库单位"></el-autocomplete>
             </div>
           </div>
           <div class="row">
@@ -381,7 +463,6 @@
               <el-upload class="upload"
                 action="https://upload.qiniup.com/"
                 accept="image/jpeg,image/gif,image/png,image/bmp"
-                :before-upload="beforeAvatarUpload"
                 :file-list="fileArr"
                 :on-success="successFile"
                 :data="postData"
@@ -435,10 +516,14 @@
             :key="indexChild">
             <div class="label">{{indexChild===0?'产品信息：':''}}</div>
             <div class="info flex">
-              <el-input v-model="itemChild.size"
-                placeholder="尺码"></el-input>
-              <el-input v-model="itemChild.color"
-                placeholder="颜色"></el-input>
+              <el-autocomplete style="margin-right:12px"
+                v-model="itemChild.size"
+                :fetch-suggestions="querySearchSize"
+                placeholder="尺码"></el-autocomplete>
+              <el-autocomplete style="margin-right:12px"
+                v-model="itemChild.color"
+                :fetch-suggestions="querySearchColor"
+                placeholder="颜色"></el-autocomplete>
               <el-input v-model="itemChild.price"
                 placeholder="单价"></el-input>
               <el-input v-model="itemChild.number"
@@ -455,7 +540,21 @@
             <div class="label">选择仓库：</div>
             <div class="info">
               <el-select placeholder="请选择仓库"
-                v-model="updateInfo.store_id"></el-select>
+                v-model="updateInfo.store_id">
+                <el-option v-for="item in stockArr"
+                  :key="item.id"
+                  :value="item.id"
+                  :label="item.name"></el-option>
+              </el-select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="label">出入库单位：</div>
+            <div class="info">
+              <el-autocomplete class="inline-input"
+                v-model="productInfo.client_name"
+                :fetch-suggestions="querySearchClient"
+                placeholder="请输入出入库单位"></el-autocomplete>
             </div>
           </div>
           <div class="row">
@@ -466,8 +565,8 @@
                 action="https://upload.qiniup.com/"
                 accept="image/jpeg,image/gif,image/png,image/bmp"
                 :before-upload="beforeAvatarUpload"
-                :file-list="fileArr"
-                :on-success="successFile"
+                :file-list="fileArrUpadate"
+                :on-success="successFileUpdate"
                 :data="postData"
                 ref="uploada"
                 list-type="picture">
@@ -521,9 +620,12 @@
 
 <script>
 import { getToken, store, product, outAndIn } from '@/assets/js/api.js'
+import { downloadExcel } from '@/assets/js/common.js'
 export default {
   data () {
     return {
+      loading: true,
+      proSelectList: [], // 产品远程搜索下拉框
       createProFlag: false,
       updateProFlag: false,
       createStoreFlag: false,
@@ -547,12 +649,14 @@ export default {
           number: '',
           price: ''
         }],
+        client_name: '',
         store_id: '',
         image: []
       },
       updateInfo: {
         name: '',
         type: '',
+        client_name: '',
         childrenArr: [{
           color: '',
           size: '',
@@ -565,72 +669,155 @@ export default {
       storeInfo: {
         name: ''
       },
-      productList: [{
-        id: 1,
-        text: '假设有数据',
-        arr: [{
-          size_id: 1,
-          text: '假设有儿子'
-        }, {
-          size_id: 2,
-          text: '假设有儿子'
-        }]
-      }, {
-        id: 2,
-        text: '假设有数据',
-        arr: [{
-          size_id: 2,
-          text: '假设有儿子'
-        }]
-      }],
-      storeLogList: [{
-        text: '假设有数据',
-        id: 1
-      }, {
-        text: '假设有数据',
-        id: 2
-      }],
+      clientName: '',
+      productList: [],
+      storeLogList: [],
       fileArr: [],
+      fileArrUpadate: [],
+      addArr: [],
+      deleteArr: [],
       stockArr: [],
       postData: { token: '' },
-      checkAll: false
+      checkAll: false,
+      actionArr: ['', '入库', '销售/出库'],
+      localSizeArr: [],
+      localColorArr: [],
+      localClientArr: []
     }
   },
   methods: {
+    querySearchClient (queryString, cb) {
+      cb(queryString ? this.addValue(this.localClientArr.filter(this.createFilter(queryString))) : this.addValue(this.localClientArr))
+    },
+    querySearchColor (queryString, cb) {
+      cb(queryString ? this.addValue(this.localColorArr.filter(this.createFilter(queryString))) : this.addValue(this.localColorArr))
+    },
+    querySearchSize (queryString, cb) {
+      cb(queryString ? this.addValue(this.localSizeArr.filter(this.createFilter(queryString))) : this.addValue(this.localSizeArr))
+    },
+    createFilter (queryString) {
+      return (obj) => {
+        return (obj.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      }
+    },
+    // 能把数组转为对象数组
+    addValue (arr) {
+      return arr.map((item) => {
+        return {
+          value: item
+        }
+      })
+    },
+    getLocal (type, name) {
+      if (type === 'size') {
+        if (this.localSizeArr.find((item) => item === name) === -1) {
+          return
+        }
+        this.localSizeArr.push(name)
+        window.localStorage.setItem('size', JSON.stringify(this.localSizeArr))
+      }
+      if (type === 'color') {
+        if (this.localColorArr.find((item) => item === name) === -1) {
+          return
+        }
+        this.localColorArr.push(name)
+        window.localStorage.setItem('color', JSON.stringify(this.localColorArr))
+      }
+      if (type === 'client') {
+        if (this.localClientArr.find((item) => item === name) === -1) {
+          return
+        }
+        this.localClientArr.push(name)
+        window.localStorage.setItem('client', JSON.stringify(this.localClientArr))
+      }
+    },
+    // 批量导出excel
+    download () {
+      const data = this.storeLogList.filter(item => item.check)
+      data.forEach((item) => {
+        item.action_type = this.actionArr[item.action_type]
+        item.totalPrice = Number(item.price * item.number)
+        item.product_code = item.product_info.product_code
+        item.product_name = item.product_info.name
+        item.style_code = item.product_info.style_code
+        item.size_color = item.size_info.size_name + '/' + item.size_info.color_name
+        item.time = item.created_at.date.slice(0, 10)
+      })
+      if (data.length === 0) {
+        this.$message.error('请选择需要导出的日志')
+        return
+      }
+      downloadExcel(data, [
+        { title: '产品编号', key: 'product_code' },
+        { title: '产品名称', key: 'product_name' },
+        { title: '款号', key: 'style_code' },
+        { title: '尺码颜色', key: 'size_color' },
+        { title: '单价', key: 'price' },
+        { title: '数量', key: 'number' },
+        { title: '总价', key: 'totalPrice' },
+        { title: '操作类型', key: 'action_type' },
+        { title: '出入库单位', key: 'client_name' },
+        { title: '备注', key: 'desc' },
+        { title: '操作人', key: 'user_name' },
+        { title: '操作时间', key: 'time' }
+      ], this.orderInfo)
+    },
+    getColorSize (id) {
+      if (!id) {
+        return []
+      }
+      return this.proSelectList.find((item) => Number(item.id) === Number(id)).size_info
+    },
     checkAllLog (flag) {
       this.storeLogList.forEach((item) => {
         item.check = flag
       })
     },
     getStoreLogList () {
+      this.loading = true
+      var date = new Date()
+      var y = date.getFullYear()
+      var m = date.getMonth() + 1
+      m = m < 10 ? '0' + m : m
+      var d = date.getDate()
+      d = d < 10 ? ('0' + d) : d
       outAndIn.list({
-        // name: this.storeName,
-        // date: this.storeDate,
+        client_name: this.clientName,
+        keyword: this.storeName,
+        start_time: this.storeDate,
+        end_time: y + '-' + m + '-' + d,
         page: this.pageStoreLog,
-        limit: 5
+        limit: 10
       }).then((res) => {
-        if (res.data.status) {
-          this.storeLogList = res.data.data
-        }
+        this.storeLogList = res.data.data
+        this.totalStoreLog = res.data.meta.total
+        this.loading = false
       })
     },
     getProList () {
+      this.loading = true
+      var date = new Date()
+      var y = date.getFullYear()
+      var m = date.getMonth() + 1
+      m = m < 10 ? '0' + m : m
+      var d = date.getDate()
+      d = d < 10 ? ('0' + d) : d
       product.list({
-        // name: this.proName,
-        // date: this.proDate,
+        keyword: this.proName,
+        start_time: this.proDate,
+        end_time: y + '-' + m + '-' + d,
         page: this.pagePro,
         limit: 5
       }).then((res) => {
-        if (res.data.status) {
-          this.productList = res.data.data
-        }
+        this.productList = res.data.data
+        this.proSelectList = res.data.data
+        this.totalPro = res.data.meta.total
+        this.loading = false
       })
     },
     getStoreList () {
       store.list().then((res) => {
-        if (res.data.status) {
-          this.stockArr = res.data.data
-        }
+        this.stockArr = res.data.data
       })
     },
     cancle () {
@@ -638,7 +825,6 @@ export default {
       this.addProFlag = false
     },
     totalPrice (arr) {
-      console.log(arr)
       return arr.reduce((total, current) => {
         return current.number * current.price + total
       }, 0)
@@ -654,7 +840,7 @@ export default {
         this.addProFlag = true
       }
       this.productData.push({
-        id: id || '',
+        id: Number(id) || '',
         type: type || '',
         client: '',
         store_id: '',
@@ -688,8 +874,31 @@ export default {
       }
       item.splice(index, 1)
     },
-    deleteSizeColor () {
+    deleteSizeColor (id) {
       // 删除尺码配色需要判断库存数量为0
+      this.$confirm('是否确认要删除该产品，在删除之前请确认该尺码配色没有任何出入库操作', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        product.deleteSize({
+          id: id
+        }).then((res) => {
+          console.log(res)
+          if (res.data.status) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            this.getProList()
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     beforeAvatarUpload (file) {
       const fileName = file.name.lastIndexOf('.')// 取到文件名开始到最后一个点的长度
@@ -710,6 +919,33 @@ export default {
     },
     successFile (response, file, fileList) {
       this.productInfo.image.push('https://zhihui.tlkrzf.com/' + response.key)
+    },
+    successFileUpdate (response, file, fileList) {
+      this.addArr.push('https://zhihui.tlkrzf.com/' + response.key)
+    },
+    beforeRemove (file, fileList) {
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deleteArr.push({
+          id: file.id ? file.id : null,
+          file_name: file.response ? file.response.key : file.url.split('https://zhihui.tlkrzf.com/')[1]
+        })
+        this.$forceUpdate()
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+      // return false 禁用自带的删除功能
+      return false
     },
     savePro () {
       let errorMsg = ''
@@ -740,7 +976,11 @@ export default {
       const data = this.productInfo
       const formData = {
         name: data.name,
-        image: data.image,
+        image: {
+          file_data: data.image,
+          delete_data: []
+        },
+        client_name: data.client_name,
         style_code: data.type,
         store_id: data.store_id,
         size_info: data.childrenArr.map((item) => {
@@ -755,28 +995,155 @@ export default {
       product.create(formData).then((res) => {
         if (res.data.status) {
           this.$message.success('添加成功')
+          this.resetPro()
+          this.getLocal('client', data.client_name)
+          data.size_info.forEach((item) => {
+            this.getLocal('size', item.size)
+            this.getLocal('color', item.color)
+          })
         }
         this.createProFlag = false
         this.getProList()
+        this.getStoreLogList()
       })
     },
+    resetPro () {
+      this.productInfo = {
+        name: '',
+        type: '',
+        childrenArr: [{
+          color: '',
+          size: '',
+          number: '',
+          price: ''
+        }],
+        store_id: '',
+        image: []
+      }
+    },
     goUpdatePro (item) {
+      this.updateInfo = {
+        id: item.id,
+        name: item.name,
+        type: item.style_code,
+        childrenArr: [{
+          color: '',
+          size: '',
+          number: '',
+          price: ''
+        }],
+        store_id: '',
+        client_name: '',
+        image: item.image
+      }
+      this.fileArrUpadate = item.image.map(item => {
+        return {
+          id: item.id,
+          url: item.image_url
+        }
+      })
       this.updateProFlag = true
     },
+    deleteProReal (id) {
+      this.$confirm('是否确认要删除该产品，在删除之前请确认该产品没有任何出入库操作', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        product.delete({
+          id: id
+        }).then((res) => {
+          console.log(res)
+          if (res.data.status) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            this.getProList()
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    searchProList (query) {
+      product.list({
+        keyword: query,
+        limit: 20,
+        page: 1
+      }).then((res) => {
+        this.proSelectList = res.data.data
+      })
+    },
     updatePro () {
-
+      let errorMsg = ''
+      if (!this.updateInfo.name) {
+        errorMsg = '请填写产品名称'
+      }
+      if (this.updateInfo.store_id) {
+        this.updateInfo.childrenArr.forEach((item) => {
+          if (!item.size) {
+            errorMsg = '尺码未填写'
+          }
+          if (!item.color) {
+            errorMsg = '颜色未填写'
+          }
+          if (!item.number) {
+            errorMsg = '数量未填写'
+          }
+          if (!item.price) {
+            errorMsg = '单价未填写'
+          }
+        })
+      }
+      if (errorMsg) {
+        this.$message.error(errorMsg)
+        return
+      }
+      const data = this.updateInfo
+      const formData = {
+        id: data.id,
+        name: data.name,
+        image: {
+          file_data: this.addArr,
+          delete_data: this.deleteArr
+        },
+        style_code: data.type,
+        store_id: data.store_id,
+        client_name: data.client_name,
+        size_info: this.updateInfo.store_id ? data.childrenArr.map((item) => {
+          return {
+            size_name: item.size,
+            color_name: item.color,
+            number: item.number,
+            price: item.price
+          }
+        }) : []
+      }
+      product.create(formData).then((res) => {
+        if (res.data.status) {
+          this.$message.success('修改成功')
+        }
+        this.updateProFlag = false
+        this.getProList()
+        this.$forceUpdate()
+      })
     },
     saveStore () {
       if (!this.storeInfo.name) {
         this.$message.error('请填写仓库名称')
       }
       store.create({
+        id: null,
         name: this.storeInfo.name
       }).then((res) => {
         if (res.data.status) {
           this.$message.success('添加成功')
         }
-        this.createProFlag = false
+        this.createStoreFlag = false
         this.getStoreList()
       })
     },
@@ -793,13 +1160,13 @@ export default {
           errorMsg = '请选择仓库'
         }
         item.childrenArr.forEach((itemChild) => {
-          if (!item.colorSize) {
+          if (!itemChild.colorSize) {
             errorMsg = '请选择产品尺码颜色'
           }
-          if (!item.number) {
+          if (!itemChild.number) {
             errorMsg = '请填写数量'
           }
-          if (!item.price) {
+          if (!itemChild.price) {
             errorMsg = '请填写价格，如果没有价格请填0'
           }
         })
@@ -811,7 +1178,7 @@ export default {
       const formData = this.productData.map((item) => {
         return {
           product_id: item.id,
-          stock_id: item.store_id,
+          store_id: item.store_id,
           client_name: item.client,
           desc: item.desc,
           action_type: item.type,
@@ -829,8 +1196,11 @@ export default {
       }).then((res) => {
         if (res.data.status) {
           this.$message.success('添加成功')
+          this.productData = []
+          this.addProFlag = false
           this.getProList()
           this.getStoreLogList()
+          this.$forceUpdate()
         }
       })
     },
@@ -869,19 +1239,36 @@ export default {
       if (flag === 'store') {
         this.storeName = ''
         this.storeDate = ''
+        this.clientName = ''
         this.getStoreLogList()
       }
     }
   },
   created () {
+    this.localClientArr = JSON.parse(window.localStorage.getItem('client')) || []
+    this.localColorArr = JSON.parse(window.localStorage.getItem('color')) || []
+    this.localSizeArr = JSON.parse(window.localStorage.getItem('size')) || []
     Promise.all([
       getToken(),
       store.list(),
-      product.list()
+      product.list({
+        limit: 5,
+        page: 1
+      }),
+      outAndIn.list({
+        limit: 10,
+        page: 1
+      })
     ]).then((res) => {
       console.log(res)
       this.postData.token = res[0].data.data
       this.stockArr = res[1].data.data
+      this.productList = res[2].data.data
+      this.proSelectList = res[2].data.data
+      this.totalPro = res[2].data.meta.total
+      this.storeLogList = res[3].data.data
+      this.totalStoreLog = res[3].data.meta.total
+      this.loading = false
     })
   }
 }

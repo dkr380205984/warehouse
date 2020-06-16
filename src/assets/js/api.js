@@ -11,7 +11,8 @@ const product = {
   create: (params) => http.post(`${baseUrl}/product/save`, params, 'application/json'),
   detail: (params) => http.get(`${baseUrl}/product/one`, params),
   delete: (params) => http.post(`${baseUrl}/product/delete`, params, 'application/json'),
-  list: (params) => http.get(`${baseUrl}/product/list`, params)
+  list: (params) => http.get(`${baseUrl}/product/list`, params),
+  deleteSize: (params) => http.post(`${baseUrl}/product/size/delete`, params, 'application/json')
 }
 // 仓库
 const store = {
