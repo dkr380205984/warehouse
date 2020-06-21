@@ -1138,7 +1138,8 @@ export default {
       }
       store.create({
         id: null,
-        name: this.storeInfo.name
+        name: this.storeInfo.name,
+        type: 1
       }).then((res) => {
         if (res.data.status) {
           this.$message.success('添加成功')
@@ -1250,7 +1251,9 @@ export default {
     this.localSizeArr = JSON.parse(window.localStorage.getItem('size')) || []
     Promise.all([
       getToken(),
-      store.list(),
+      store.list({
+        type: 1
+      }),
       product.list({
         limit: 5,
         page: 1
@@ -1260,7 +1263,6 @@ export default {
         page: 1
       })
     ]).then((res) => {
-      console.log(res)
       this.postData.token = res[0].data.data
       this.stockArr = res[1].data.data
       this.productList = res[2].data.data

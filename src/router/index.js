@@ -16,9 +16,25 @@ const routes = [
     name: 'index',
     component: () => import('../views/index.vue'),
     children: [{
-      path: '/storeDetail',
-      name: 'storeDetail',
-      component: () => import('../views/storeDetail.vue')
+      path: '/proStoreDetail',
+      name: '产品出入库',
+      component: () => import('../views/proStoreDetail.vue')
+    }, {
+      path: '/yarnOrderCreate',
+      name: '添加采购单',
+      component: () => import('../views/yarnOrderCreate.vue')
+    }, {
+      path: '/yarnOrderList/:params',
+      name: '采购单列表',
+      component: () => import('../views/yarnOrderList.vue')
+    }, {
+      path: '/yarnOrderDetail/:id',
+      name: '采购单详情',
+      component: () => import('../views/yarnOrderDetail.vue')
+    }, {
+      path: '/yarnStoreDetail',
+      name: '物料出入库',
+      component: () => import('../views/yarnStoreDetail.vue')
     }]
   }
 ]

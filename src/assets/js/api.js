@@ -25,11 +25,30 @@ const outAndIn = {
   list: (params) => http.get(`${baseUrl}/store/log/list`, params),
   delete: (params) => http.post(`${baseUrl}/store/log/delete`, params, 'application/json')
 }
+// 物料采购单
+const yarnOrder = {
+  create: (params) => http.post(`${baseUrl}/material/order/save`, params, 'application/json'),
+  detail: (params) => http.get(`${baseUrl}/material/order/detail`, params),
+  list: (params) => http.get(`${baseUrl}/material/order/list`, params),
+  delete: (params) => http.post(`${baseUrl}/material/order/delete`, params, 'application/json')
+}
+// 物料出入库
+const yarnOutAndIn = {
+  create: (params) => http.post(`${baseUrl}/material/stock/save`, params, 'application/json'),
+  delete: (params) => http.post(`${baseUrl}/material/stock/log/delete`, params, 'application/json')
+}
+// 物料库存
+const yarnStore = {
+  list: (params) => http.get(`${baseUrl}/material/stock/list`, params)
+}
 export {
   login,
   logout,
   getToken,
   product,
   store,
-  outAndIn
+  outAndIn,
+  yarnOrder,
+  yarnOutAndIn,
+  yarnStore
 }

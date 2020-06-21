@@ -71,7 +71,102 @@ const downloadExcel = (data, titles, orderInfo, excelName) => {
   aLink.download = (excelName ? excelName + '-' : '') + new Date().getTime() + '.xls'
   aLink.click()
 }
+const getDataType = (data) => {
+  if (data === null) {
+    return 'Null'
+  } else if (data === undefined) {
+    return 'Undefined'
+  }
+  return Object.prototype.toString.call(data).split(' ')[1].split(']')[0]
+}
+const cloneData = (data) => {
+  const type = getDataType(data)
+  let newData = null
+  if (type === 'Array') {
+    newData = []
+    data.forEach((item, index) => {
+      newData[index] = cloneData(item)
+    })
+  } else if (type === 'Object') {
+    newData = {}
+    for (const index in data) {
+      const item = data[index]
+      newData[index] = cloneData(item)
+    }
+  } else {
+    newData = data ? JSON.parse(JSON.stringify(data)) : data
+  }
+  return newData
+}
+const flatten = (data) => {
+  const oldData = cloneData(data)
+  const type = getDataType(oldData)
+  if (type === 'Object') {
+    for (const index in oldData) {
+      const item = oldData[index]
+      const itemType = getDataType(item)
+      if (itemType === 'Object') {
+        const deleteProp = cloneData(item) // 保存一份需要处理的数据
+        delete oldData[index]
+        for (const hasKey in oldData) {
+          if (deleteProp[hasKey]) {
+            throw new TypeError('存在相同的key值，无法执行')
+          }
+        }
+        return flatten({ ...oldData, ...deleteProp })
+      } else if (itemType === 'Array') {
+        const newData = []
+        const deleteProp = cloneData(item) // 保存一份需要处理的数据
+        delete oldData[index]
+        if (deleteProp.length < 1) {
+          newData.push({ ...oldData })
+        } else {
+          deleteProp.forEach(itemDel => {
+            newData.push({ ...oldData, [index]: itemDel })
+          })
+        }
+        return flatten(newData)
+      }
+    }
+    return oldData
+  } else if (type === 'Array') {
+    for (const index in oldData) {
+      const item = oldData[index]
+      const itemType = getDataType(item)
+      if (itemType === 'Object') {
+        oldData[index] = flatten(item)
+      } else if (itemType === 'Array') {
+        const newArr = []
+        oldData.forEach(itemOld => {
+          newArr.push(...itemOld)
+        })
+        return flatten(newArr)
+      }
+    }
+    return oldData
+  } else {
+    return oldData
+  }
+}
+const formCheck = (data, type, msg) => {
+  if (type === 'ifNull') {
+    if (!data) {
+      return msg || '数据不得为空'
+    }
+  } else if (type === 'ifNumber') {
+    // isNaN()函数 把空串 空格 以及NUll 按照0来处理 所以先去除
+    if (data === '' || data == null) {
+      return msg || '数据不得为空'
+    }
+    if (isNaN(data)) {
+      return msg || '请填写数字'
+    }
+  }
+  return false
+}
 export {
   getHash,
-  downloadExcel
+  downloadExcel,
+  flatten,
+  formCheck
 }

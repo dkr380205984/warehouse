@@ -257,6 +257,286 @@
         justify-content: flex-end;
       }
     }
+    .editCtn{
+      padding: 20px 0;
+      position: relative;
+      &.hasBorderTop{        
+        border-top: 1px solid #E9E9E9;
+      }
+      .deleteIcon{
+        position: absolute;
+        top: 0;
+        right: 32px;
+        transform: translateY(-50%);
+        display: block;
+        font-size: @fontBig;
+        background: #fff;
+        border: 1px solid @red;
+        color: @red;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .rowCtn{
+        padding: 0 32px;
+        margin: 18px 0;
+        display: flex;
+        justify-content: flex-start;
+        .colCtn{
+          flex:1;
+          margin-right: 72px;
+          box-sizing: border-box;
+          position: relative;
+          &.flex2{
+            max-width: 579px;
+          }
+          &.flex3{
+            max-width: 362px;
+          }
+          &.flex4{
+            max-width: 253.5px;
+          }
+          .label{
+            display: block;
+            height: 38px;
+            line-height: 38px;
+            font-size: @fontMiddle;
+            .text{
+              color: @font85;
+            }
+            .explanation{
+              margin-left: 5px;
+              color: @font25;
+            }
+          }
+          .content{
+            display: block;
+            height:32px;
+            .uploadBtn{
+              font-size: 14px;
+              color: @font65;
+              border:1px solid #D9D9D9;
+              padding: 4px 12px;
+              border-radius: 4px;
+            }
+            &.autoHeight{
+              height: auto;
+            }
+          }
+          .editBtn{
+            position: absolute;
+            line-height: 32px;
+            cursor: pointer;
+            left: 100%;
+            bottom: 0;
+            white-space: nowrap;
+            margin-left: 24px;
+            font-size: @fontMiddle;
+            &.addBtn{
+              color: @blue;
+            }
+            &.deleteBtn{
+              color: @red;
+            }
+          }
+        }
+      }
+    }
+    // 详情页面公共样式
+    .detailCtn{
+      padding: 20px 0;
+      border-top: 1px solid #E9E9E9;
+      position: relative;
+      .rowCtn{
+        padding: 0 32px;
+        margin: 18px 0;
+        display: flex;
+        justify-content: flex-start;
+        .colCtn{
+          flex:1;
+          margin-right: 72px;
+          box-sizing: border-box;
+          position: relative;
+          display: flex;
+          &.flex2{
+            max-width: 579px;
+          }
+          &.flex3{
+            max-width: 362px;
+          }
+          &.flex4{
+            max-width: 253.5px;
+          }
+          .label{
+            display: inline-block;
+            height: 38px;
+            line-height: 38px;
+            font-size: @fontMiddle;
+            width: 5em;
+            white-space: nowrap;
+          }
+          .text{
+            display: inline-block;
+            min-height: 38px;
+            line-height: 38px;
+            font-size: @fontMiddle;
+            &.blue{
+              color: @blue;
+            }
+            &.orange{
+              color:@orange;
+            }
+          }
+          .lineCtn{
+            font-size: @fontMiddle;
+            line-height: 38px;
+          }
+          .imgCtn{
+            display: inline-block;
+            img{
+              height: 116px;
+              vertical-align: text-top;
+              margin-right: 16px;
+            }
+          }
+          .rectCtn{
+            display: flex;
+            .rect{
+              width: 266px;
+              border:1px solid #E8E8E8;
+              box-shadow:0px 3px 8px rgba(0,0,0,0.09);
+              margin-right: 32px;
+              position: relative;
+              .tab{
+                position: absolute;
+                right: 24px;
+                top: 0px;
+                line-height: 24px;
+                .circle{
+                  width: 5px;
+                  height: 5px;
+                  display: inline-block;
+                  border-radius: 50%;
+                  background: @font25;
+                  margin-left: 6px;
+                  cursor: pointer;
+                  &.active{
+                    background: @blue;
+                  }
+                }
+              }
+              .main{
+                padding: 24px;
+                display: flex;
+                height: 90px;
+                .icon{
+                  width: 18px;
+                  height: 18px;
+                  padding:4px;
+                  border-radius: 50%;
+                  margin-right: 16px;
+                  &.gray{
+                    background: #999999;
+                  }
+                  &.yellow{
+                     background: @orange;
+                  }
+                  &.blue{
+                    background: @blue;
+                  }
+                  &.green{
+                    background: @green;
+                  }
+                  img{
+                    width: 18px;
+                    height: 18px;
+                  }
+                }
+                .content{
+                  flex: 1;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: flex-start;
+                  .text{
+                    margin-bottom: 16px;
+                    min-height: 20px;
+                    line-height: 20px;
+                    color: @font45;
+                    &.title{
+                      font-size: @fontBig;
+                      color: @font85;
+                      line-height: 24px;
+                    }
+                  }
+                }
+              }
+              .menu{
+                height: 40px;
+                line-height: 40px;
+                display: flex;
+                background: #F7F9FA;
+                justify-content: space-around;
+                align-items: center;
+                .opration{
+                  color: @blue;
+                  border-right: 1px solid #E8E8E8;
+                  font-size: @fontMiddle;
+                  height: 16px;
+                  line-height: 16px;
+                  text-align: center;
+                  flex: 1;
+                  cursor: pointer;
+                  &:nth-last-child(1){
+                    border-right: 0;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      .floatRight{
+        float: right;
+        padding-right: 32px;
+        margin: 18px 0;
+        .btnCtn{
+          display: flex;
+          justify-content: flex-end;;
+        }
+        .otherInfo{
+          display: flex;
+          margin-top: 16px;
+          justify-content: flex-end;
+          flex-direction: row-reverse;
+          .block{
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+            margin-left: 32px;
+            .label{
+              font-size: @fontMiddle;
+              color: @font45;
+              margin-bottom: 8px;
+            }
+            .text{
+              font-size: 20px;
+              color: @font85;
+              &.blue{
+                color: @blue;
+              }
+              &.green{
+                color: @green;
+              }
+              &.orange{
+                color: @orange;
+              }
+              &.red{
+                color: @red;
+              }
+            }
+          }
+        }
+      }
+    }
   }
   // 底部操作栏
   .bottomFixBar{

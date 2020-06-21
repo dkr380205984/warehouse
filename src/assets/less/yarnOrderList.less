@@ -1,0 +1,41 @@
+@import './common.less';
+#yarnOrderList{
+  width: 1366px;
+  margin-left: auto;
+  margin-right: auto;
+  .tableMode{
+    display: flex;
+    .flexTb{
+      width: 100%;
+      overflow-x: scroll;
+      border-left:0;
+      border-right: 0;
+      font-size: 16px;
+      .tcolumn{
+        width: 180px;
+        box-sizing: border-box;
+        border-color: #C7C5C5;
+      }
+      .trow{
+        border-color: #C7C5C5;
+      }
+      .thead{
+        border-color: #C7C5C5;
+      }
+      .thead{
+        width:300%
+      }
+      .tbody{
+        width:300%
+      }
+      .thead{
+        &.gray{
+          font-size: 18px;
+          .tcolumn{
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+}
