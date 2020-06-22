@@ -36,10 +36,27 @@ const routes = [
       name: '物料出入库',
       component: () => import('../views/yarnStoreDetail.vue')
     }]
+  }, {
+    path: '/print/goStockTable/:id',
+    name: 'goStockTable',
+    component: () => import('../views/print/goStockTable.vue')
+  }, {
+    path: '/print/outStockTable/:id',
+    name: 'outStockTable',
+    component: () => import('../views/print/outStockTable.vue')
+  }, {
+    path: '/print/backStockTable/:id',
+    name: 'backStockTable',
+    component: () => import('../views/print/backStockTable.vue')
+  }, {
+    path: '/print/orderYarnTable/:id',
+    name: 'orderYarnTable',
+    component: () => import('../views/print/orderYarnTable.vue')
   }
 ]
 
 const router = new VueRouter({
+  mode: 'history',
   base: process.env.BASE_URL,
   routes
 })

@@ -3,8 +3,7 @@
     <div class="header">
       <div class="navCtn">
         <div class="leftCtn">
-          <div class="companyCtn"
-            @click="$router.push('/homePage/homePage')">
+          <div class="companyCtn">
             <div class="logo">
               <img :src="logo" />
             </div>
@@ -54,7 +53,7 @@ import { logout } from '@/assets/js/api.js'
 export default {
   data () {
     return {
-      companyName: '欢迎使用仓储管理系统',
+      companyName: window.sessionStorage.getItem('company_name'),
       logo: require('@/assets/image/index/logo.png')
     }
   },

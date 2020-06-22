@@ -4,7 +4,7 @@
     v-loading="loading">
     <div class="module">
       <div class="titleCtn">
-        <span class="title">计划单信息</span>
+        <span class="title">采购单信息</span>
       </div>
       <div class="detailCtn"
         style="border-top:0">
@@ -39,6 +39,8 @@
       <div class="listCtn">
         <div class="tableCtnLv2">
           <div class="tb_header bigPadding">
+            <span class="tb_row two_line"
+              style="flex:0.3"></span>
             <span class="tb_row two_line">纱线名称</span>
             <span class="tb_row">单价</span>
             <span class="tb_row">颜色</span>
@@ -47,11 +49,15 @@
             <span class="tb_row">入库总价</span>
             <span class="tb_row middle">操作</span>
           </div>
-          <el-collapse accordion>
+          <el-collapse>
             <el-collapse-item v-for="(item,index) in yarnOrderDetail.material_info"
               :key="index">
               <div slot="title"
                 class="tb_collapse tb_content bigPadding">
+                <span class="tb_row two_line"
+                  style="flex:0.3">
+                  <el-checkbox v-model="item.check"></el-checkbox>
+                </span>
                 <span class="tb_row two_line">{{item.material_name}}</span>
                 <span class="tb_row">{{item.price}}元</span>
                 <span class="tb_row">{{item.material_attribute}}</span>
@@ -72,6 +78,8 @@
               </div>
               <div class="tableCtnLv2">
                 <div class="tb_header noBgColor bigPadding">
+                  <span class="tb_row"
+                    style="flex:0.3"></span>
                   <span class="tb_row">缸号/批号</span>
                   <span class="tb_row">色号</span>
                   <span class="tb_row">操作类型</span>
@@ -88,6 +96,10 @@
                 <div class="tb_collapse tb_content bigPadding smallHeight"
                   v-for="itemChild in item.logList"
                   :key="itemChild.id">
+                  <span class="tb_row"
+                    style="flex:0.3">
+                    <el-checkbox v-model="itemChild.check"></el-checkbox>
+                  </span>
                   <span class="tb_row">{{itemChild.vat_code}}</span>
                   <span class="tb_row">{{itemChild.color_code}}</span>
                   <span class="tb_row">{{itemChild.action_type===1?'入库':itemChild.action_type===2?'出库':'回库'}}</span>
@@ -108,6 +120,21 @@
                       style="padding:0 5px 0 0"
                       v-if="itemChild.action_type===1"
                       @click.stop="addOpr(2,item.id,item.price,item.weight,item.material_name,item.material_attribute,itemChild.vat_code,itemChild.color_code,itemChild.store_id)">出库</span>
+                    <span class="tb_handle_btn blue"
+                      style="padding:0 5px 0 0;visibility:hidden"
+                      v-if="itemChild.action_type===3">出库</span>
+                    <span class="tb_handle_btn orange"
+                      style="padding:0 5px 0 0"
+                      v-if="itemChild.action_type===1"
+                      @click.stop="openWin('/print/goStockTable/' + $route.params.id + '?logId=' + itemChild.id)">打印</span>
+                    <span class="tb_handle_btn orange"
+                      style="padding:0 5px 0 0"
+                      v-if="itemChild.action_type===2"
+                      @click.stop="openWin('/print/outStockTable/' + $route.params.id + '?logId=' + itemChild.id)">打印</span>
+                    <span class="tb_handle_btn orange"
+                      style="padding:0 5px 0 0"
+                      v-if="itemChild.action_type===3"
+                      @click.stop="openWin('/print/backStockTable/' + $route.params.id + '?logId=' + itemChild.id)">打印</span>
                     <span class="tb_handle_btn red"
                       style="padding:0"
                       @click="deleteLog(itemChild.id)">删除</span>
@@ -261,6 +288,18 @@
         </div>
       </div>
     </div>
+    <div class="bottomFixBar">
+      <div class="main">
+        <div class="btnCtn">
+          <div class="btn btnGray"
+            @click="$router.go(-1)">返回</div>
+          <div class="btn btnBlue"
+            @click="printOrder">批量打印采购单</div>
+          <div class="btn btnBlue"
+            @click="printAll">批量打印出入库</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -286,6 +325,56 @@ export default {
     }
   },
   methods: {
+    openWin (url) {
+      window.open(url)
+    },
+    printOrder () {
+      const idArr = this.yarnOrderDetail.material_info.filter((item) => item.check).map((item) => item.id)
+      if (idArr.length === 0) {
+        this.$message.error('请选择采购单')
+        return
+      }
+      window.open('/print/orderYarnTable/' + this.$route.params.id + '?logId=' + idArr.join('-'))
+    },
+    printAll () {
+      const idArr = {
+        in: [],
+        out: [],
+        back: []
+      }
+      this.yarnOrderDetail.material_info.forEach((item) => {
+        item.logList.forEach((itemChild) => {
+          if (itemChild.check) {
+            if (itemChild.action_type === 1) {
+              idArr.in.push(itemChild.id)
+            }
+            if (itemChild.action_type === 2) {
+              idArr.out.push(itemChild.id)
+            }
+            if (itemChild.action_type === 3) {
+              idArr.back.push(itemChild.id)
+            }
+          }
+        })
+      })
+      if (idArr.in.length === 0 && idArr.out.length === 0 && idArr.back.length === 0) {
+        this.$message.error('请选择需要打印的日志')
+        return
+      }
+      if ((idArr.in.length > 0 && idArr.out.length > 0) || (idArr.in.length > 0 && idArr.back.length > 0) || (idArr.out.length > 0 && idArr.back.length > 0)) {
+        this.$message.error('请选择同一类型的日志进行打印')
+        return
+      }
+      if (idArr.in.length > 0) {
+        window.open('/print/goStockTable/' + this.$route.params.id + '?logId=' + idArr.in.join('-'), '_blank')
+      }
+      if (idArr.out.length > 0) {
+        window.open('/print/outStockTable/' + this.$route.params.id + '?logId=' + idArr.out.join('-'), '_blank')
+      }
+      if (idArr.back.length > 0) {
+        window.open('/print/backStockTable/' + this.$route.params.id + '?logId=' + idArr.back.join('-'), '_blank')
+      }
+    },
     deleteData (index) {
       this.formData.splice(index, 1)
     },

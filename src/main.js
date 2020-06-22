@@ -7,11 +7,13 @@ import 'element-ui/lib/theme-chalk/index.css'
 // 粒子特效 文档地址：https://www.jianshu.com/p/53199b842d25
 import VueParticles from 'vue-particles'
 import mycomponent from './components'
+import MyPlugin from './assets/js/plugin.js'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(VueParticles)
 Vue.use(mycomponent)
+Vue.use(MyPlugin)
 
 new Vue({
   router,

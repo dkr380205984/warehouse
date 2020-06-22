@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { login } from '@/assets/js/api.js'
+import { login, getAuthorization } from '@/assets/js/api.js'
 export default {
   name: 'home',
   data () {
@@ -81,17 +81,22 @@ export default {
         if (res.data.code === 200) {
           window.sessionStorage.setItem('token', res.data.data.access_token)
           window.sessionStorage.setItem('token_type', res.data.data.token_type)
-          this.$message.success({
-            message: '登录成功',
-            duration: 1000
+          getAuthorization.get().then(resp => {
+            if (res.data.status !== false) {
+              this.$message.success({
+                message: '登录成功',
+                duration: 1000
+              })
+              window.sessionStorage.setItem('user_name', resp.data.data.user_name)
+              window.sessionStorage.setItem('company_name', resp.data.data.company_name)
+              window.sessionStorage.setItem('logo', resp.data.data.company_logo)
+              window.sessionStorage.setItem('telephone', resp.data.data.telephone)
+            }
           })
-          window.sessionStorage.setItem('user_name', res.data.data.user_name)
-          window.sessionStorage.setItem('company_name', res.data.data.company_name)
-          window.sessionStorage.setItem('module_id', JSON.stringify(res.data.data.module_id))
-          window.sessionStorage.setItem('logo', res.data.data.company_logo)
-          window.sessionStorage.setItem('has_check', res.data.data.has_check)
-          window.sessionStorage.setItem('user_id', res.data.data.user_id)
-          window.sessionStorage.setItem('group_name', res.data.data.group_name)
+          // window.sessionStorage.setItem('module_id', JSON.stringify(res.data.data.module_id))
+          // window.sessionStorage.setItem('has_check', res.data.data.has_check)
+          // window.sessionStorage.setItem('user_id', res.data.data.user_id)
+          // window.sessionStorage.setItem('group_name', res.data.data.group_name)
           window.localStorage.setItem('zhUsername', _this.telephone)
           if (_this.remPsd) {
             window.localStorage.setItem('zhPassword', _this.password)

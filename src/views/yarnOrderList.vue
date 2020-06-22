@@ -63,7 +63,8 @@
             <div class="col">
               <span class="text">订购日期</span>
             </div>
-            <div class="col">
+            <div class="col"
+              style="flex:1.2">
               <span class="text">操作</span>
             </div>
           </div>
@@ -97,9 +98,12 @@
             <div class="col">
               <span class="text">{{item.order_time}}</span>
             </div>
-            <div class="col">
+            <div class="col"
+              style="flex:1.2">
               <span class="opr"
                 @click="$router.push('/yarnOrderDetail/'+ item.id)">详情</span>
+              <span class="opr orange"
+                @click="openWin('/print/orderYarnTable/'+ item.id)">打印</span>
               <span class="opr red"
                 @click="deleteOrder(item.id)">删除</span>
             </div>
@@ -347,6 +351,9 @@ export default {
     }
   },
   methods: {
+    openWin (url) {
+      window.open(url)
+    },
     changeRouter (page) {
       const pages = page || 1
       this.$router.push('/yarnOrderList/page=' + pages + '&&order_code=' + this.orderCode + '&&material_name=' + this.yarnName + '&&client_name=' + this.clientName)

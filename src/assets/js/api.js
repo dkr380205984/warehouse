@@ -43,7 +43,12 @@ const yarnStore = {
   list: (params) => http.get(`${baseUrl}/material/stock/list`, params),
   log: (params) => http.get(`${baseUrl}/material/stock/log`, params)
 }
+// 获取用户信息
+const getAuthorization = {
+  get: (params) => http.post(`${baseUrl}/auth/user`, params, 'application/json')
+}
 export {
+  getAuthorization,
   login,
   logout,
   getToken,
