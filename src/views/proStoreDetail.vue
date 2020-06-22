@@ -710,21 +710,21 @@ export default {
     },
     getLocal (type, name) {
       if (type === 'size') {
-        if (this.localSizeArr.find((item) => item === name) === -1) {
+        if (this.localSizeArr.indexOf(name) !== -1) {
           return
         }
         this.localSizeArr.push(name)
         window.localStorage.setItem('size', JSON.stringify(this.localSizeArr))
       }
       if (type === 'color') {
-        if (this.localColorArr.find((item) => item === name) === -1) {
+        if (this.localColorArr.indexOf(name) !== -1) {
           return
         }
         this.localColorArr.push(name)
         window.localStorage.setItem('color', JSON.stringify(this.localColorArr))
       }
       if (type === 'client') {
-        if (this.localClientArr.find((item) => item === name) === -1) {
+        if (this.localClientArr.indexOf(name) !== -1) {
           return
         }
         this.localClientArr.push(name)

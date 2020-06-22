@@ -47,7 +47,11 @@ const yarnStore = {
 const getAuthorization = {
   get: (params) => http.post(`${baseUrl}/auth/user`, params, 'application/json')
 }
+const userManage = {
+  create: (params) => http.post(`${baseUrl}/user/save`, params, 'application/json')
+}
 export {
+  userManage,
   getAuthorization,
   login,
   logout,

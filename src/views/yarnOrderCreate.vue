@@ -64,9 +64,10 @@
               v-for="(item,index) in yarnInfo"
               :key="index">
               <span class="tb_row">
-                <el-input class="editInput"
-                  placeholder="请输入纱线名称"
-                  v-model="item.yarnName"></el-input>
+                <el-autocomplete class="editInput"
+                  v-model="item.yarnName"
+                  :fetch-suggestions="querySearchYarn"
+                  placeholder="请输入纱线名称"></el-autocomplete>
               </span>
               <span class="tb_row">
                 <el-input class="editInput"
@@ -81,9 +82,10 @@
                   v-for="(itemChild,indexChild) in item.childrenArr"
                   :key="indexChild">
                   <span class="tb_row">
-                    <el-input class="editInput"
-                      placeholder="请输入纱线颜色"
-                      v-model="itemChild.color"></el-input>
+                    <el-autocomplete class="editInput"
+                      v-model="itemChild.color"
+                      :fetch-suggestions="querySearchColor"
+                      placeholder="请输入纱线颜色"></el-autocomplete>
                   </span>
                   <span class="tb_row">
                     <el-input class="editInput"
@@ -175,12 +177,20 @@ export default {
         name: ''
       },
       localYarnclientArr: [],
+      localYarncolorArr: [],
+      localYarnnameArr: [],
       orderDate: (new Date()).getFullYear() + '-' + ((new Date()).getMonth() + 1 < 10 ? '0' + ((new Date()).getMonth() + 1) : (new Date()).getMonth() + 1) + '-' + ((new Date()).getDate() < 10 ? '0' + (new Date()).getDate() : (new Date()).getDate())
     }
   },
   methods: {
     querySearchClient (queryString, cb) {
       cb(queryString ? this.addValue(this.localYarnclientArr.filter(this.createFilter(queryString))) : this.addValue(this.localYarnclientArr))
+    },
+    querySearchYarn (queryString, cb) {
+      cb(queryString ? this.addValue(this.localYarnnameArr.filter(this.createFilter(queryString))) : this.addValue(this.localYarnnameArr))
+    },
+    querySearchColor (queryString, cb) {
+      cb(queryString ? this.addValue(this.localYarncolorArr.filter(this.createFilter(queryString))) : this.addValue(this.localYarncolorArr))
     },
     createFilter (queryString) {
       return (obj) => {
@@ -189,11 +199,25 @@ export default {
     },
     getLocal (type, name) {
       if (type === 'yarnclient') {
-        if (this.localYarnclientArr.find((item) => item === name) === -1) {
+        if (this.localYarnclientArr.indexOf(name) !== -1) {
           return
         }
         this.localYarnclientArr.push(name)
         window.localStorage.setItem('yarnclient', JSON.stringify(this.localYarnclientArr))
+      }
+      if (type === 'yarncolor') {
+        if (this.localYarncolorArr.indexOf(name) !== -1) {
+          return
+        }
+        this.localYarncolorArr.push(name)
+        window.localStorage.setItem('yarncolor', JSON.stringify(this.localYarncolorArr))
+      }
+      if (type === 'yarnname') {
+        if (this.localYarnnameArr.indexOf(name) !== -1) {
+          return
+        }
+        this.localYarnnameArr.push(name)
+        window.localStorage.setItem('yarnname', JSON.stringify(this.localYarnnameArr))
       }
     },
     // 能把数组转为对象数组
@@ -271,6 +295,7 @@ export default {
       })
       if (errMsg) {
         this.$message.error(errMsg)
+        return
       }
       const formData = {
         order_code: this.orderName,
@@ -286,15 +311,23 @@ export default {
           }
         })
       }
-      console.log(formData)
+      this.getLocal('yarnclient', this.clientName)
+      formData.material_info.forEach((item) => {
+        this.getLocal('yarnname', item.material_name)
+        this.getLocal('yarncolor', item.material_attribute)
+      })
       yarnOrder.create(formData).then((res) => {
-        console.log(res)
         if (res.data.status) {
           this.$message.success('添加成功')
           this.$router.push('/yarnOrderList/page=1')
         }
       })
     }
+  },
+  mounted () {
+    this.localYarnclientArr = JSON.parse(window.localStorage.getItem('yarnclient'))
+    this.localYarncolorArr = JSON.parse(window.localStorage.getItem('yarncolor'))
+    this.localYarnnameArr = JSON.parse(window.localStorage.getItem('yarnname'))
   }
 }
 </script>

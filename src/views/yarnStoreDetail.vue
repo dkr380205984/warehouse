@@ -224,12 +224,14 @@
               :fetch-suggestions="querySearchClient"
               @change="getStoreLogList"
               placeholder="请输入出入库单位查询"></el-autocomplete>
-            <el-date-picker class="inputs"
+            <el-date-picker style="margin-right:12px"
               v-model="storeDate"
-              type="date"
-              value-format="yyyy-MMM-dd"
+              type="daterange"
+              value-format="yyyy-MM-dd"
               @change="getStoreLogList"
-              placeholder="选择日期">
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期">
             </el-date-picker>
             <div class="btn btnBlue"
               style="margin-left:0px"
@@ -273,11 +275,12 @@
               </div>
               <div class="tbody">
                 <div class="trow"
-                  v-for="(item,index) in materialList"
-                  :key="index">
+                  v-for="item in materialList"
+                  :key="item.id">
                   <div class="tcolumn"
                     style="flex:0.2">
-                    <el-checkbox v-model="item.check"></el-checkbox>
+                    <el-checkbox v-model="item.check"
+                      @change="updateAll"></el-checkbox>
                   </div>
                   <div class="tcolumn">{{item.order_code}}</div>
                   <div class="tcolumn"
@@ -336,6 +339,9 @@ export default {
     }
   },
   methods: {
+    updateAll () {
+      this.$forceUpdate()
+    },
     filterMat () {
       this.loading = true
       yarnStore.list({
@@ -460,17 +466,6 @@ export default {
             }
           })
         }
-        yarnOutAndIn.delete({
-          id: [id]
-        }).then((res) => {
-          if (res.data.status) {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            })
-            this.getDetail()
-          }
-        })
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -480,22 +475,17 @@ export default {
     },
     getStoreLogList () {
       this.loading = true
-      var date = new Date()
-      var y = date.getFullYear()
-      var m = date.getMonth() + 1
-      m = m < 10 ? '0' + m : m
-      var d = date.getDate()
-      d = d < 10 ? ('0' + d) : d
       yarnStore.log({
         limit: 10,
         page: this.pageStoreLog,
         client_name: this.clientName,
         material_name: this.storeName,
-        start_time: this.storeDate,
-        end_time: y + '-' + m + '-' + d
+        start_time: this.storeDate[1],
+        end_time: this.storeDate[0]
       }).then((res) => {
         this.materialList = res.data.data
         this.totalStoreLog = res.data.meta.total
+        this.$forceUpdate()
         this.loading = false
       })
     },

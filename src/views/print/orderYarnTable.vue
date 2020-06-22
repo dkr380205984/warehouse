@@ -20,7 +20,7 @@
       <div class="print_body">
         <div class="print_row">
           <span class="row_item w180 center">采购单号</span>
-          <span class="row_item left">{{info.order_yarn_code}}</span>
+          <span class="row_item left">{{info.inside_code}}</span>
           <span class="row_item w180 center">订单信息</span>
           <span class="row_item left">{{info.order_code}}</span>
         </div>
