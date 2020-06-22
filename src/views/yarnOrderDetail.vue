@@ -42,8 +42,9 @@
             <span class="tb_row two_line">纱线名称</span>
             <span class="tb_row">单价</span>
             <span class="tb_row">颜色</span>
-            <span class="tb_row">数量</span>
-            <span class="tb_row">总价</span>
+            <span class="tb_row">订购数量</span>
+            <span class="tb_row">入库数量</span>
+            <span class="tb_row">入库总价</span>
             <span class="tb_row middle">操作</span>
           </div>
           <el-collapse accordion>
@@ -54,8 +55,12 @@
                 <span class="tb_row two_line">{{item.material_name}}</span>
                 <span class="tb_row">{{item.price}}元</span>
                 <span class="tb_row">{{item.material_attribute}}</span>
-                <span class="tb_row">{{item.weight}}</span>
-                <span class="tb_row">{{Number(item.price*item.weight)}}元</span>
+                <span class="tb_row"
+                  style="color:#1a95ff">{{item.weight}}kg</span>
+                <span class="tb_row"
+                  style="color:#E6A23C">{{item.in_weight}}kg</span>
+                <span class="tb_row"
+                  style="color:#01B48C">{{Number(item.price*item.in_weight)}}元</span>
                 <span class="tb_row middle">
                   <span class="tb_handle_btn blue"
                     @click.stop="addOpr(1,item.id,item.price,item.weight,item.material_name,item.material_attribute)">入库</span>
@@ -95,6 +100,14 @@
                   <span class="tb_row">{{itemChild.user_name}}</span>
                   <span class="tb_row">{{itemChild.complete_time}}</span>
                   <span class="tb_row">
+                    <span class="tb_handle_btn blue"
+                      style="padding:0 5px 0 0"
+                      v-if="itemChild.action_type===2"
+                      @click.stop="addOpr(3,item.id,item.price,item.weight,item.material_name,item.material_attribute,itemChild.vat_code,itemChild.color_code,itemChild.store_id)">回库</span>
+                    <span class="tb_handle_btn blue"
+                      style="padding:0 5px 0 0"
+                      v-if="itemChild.action_type===1"
+                      @click.stop="addOpr(2,item.id,item.price,item.weight,item.material_name,item.material_attribute,itemChild.vat_code,itemChild.color_code,itemChild.store_id)">出库</span>
                     <span class="tb_handle_btn red"
                       style="padding:0"
                       @click="deleteLog(itemChild.id)">删除</span>
@@ -276,18 +289,18 @@ export default {
     deleteData (index) {
       this.formData.splice(index, 1)
     },
-    addOpr (type, id, price, weight, name, color) {
+    addOpr (type, id, price, weight, name, color, vat, colorCode, storeId) {
       this.formData.push({
         yarn_id: id,
         material_name: name || '',
         client_name: '',
         material_attribute: color || '',
-        attr: '',
-        colorDetail: '',
+        attr: vat || '',
+        colorDetail: colorCode || '',
         number: '',
         weight: weight || 0,
         jianshu: '',
-        store_id: '',
+        store_id: storeId || '',
         price: price || 0,
         date: (new Date()).getFullYear() + '-' + ((new Date()).getMonth() + 1 < 10 ? '0' + ((new Date()).getMonth() + 1) : (new Date()).getMonth() + 1) + '-' + ((new Date()).getDate() < 10 ? '0' + (new Date()).getDate() : (new Date()).getDate()),
         type: type,
@@ -393,6 +406,12 @@ export default {
       this.storeList = res[1].data.data
       this.yarnOrderDetail.material_info.forEach((item) => {
         item.logList = []
+        item.in_weight = this.yarnOrderDetail.stock_log.reduce((total, current) => {
+          if (current.action_type === 1 && item.material_name === current.material_name && item.material_attribute === current.material_attribute) {
+            return total + current.weight
+          }
+          return total
+        }, 0)
         this.yarnOrderDetail.stock_log.forEach((itemLog) => {
           if (itemLog.order_id === item.id) {
             item.logList.push(itemLog)

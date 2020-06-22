@@ -1,9 +1,11 @@
 <template>
   <div id="yarnStoreDetail"
-    class="contentMain">
+    class="contentMain"
+    v-loading="loading">
     <div class="searchCtn">
       <div class="title">搜索物料名称，查询物料库存信息</div>
       <el-autocomplete class="inline-input"
+        v-model="searchYarnValue"
         :fetch-suggestions="searchYarn"
         placeholder="请输入物料名称查询"
         @select="selectYarn">
@@ -13,9 +15,12 @@
         </template>
       </el-autocomplete>
     </div>
-    <div class="module">
+    <div class="module"
+      v-if="searchList.length>0">
       <div class="titleCtn">
         <span class="title">搜索物料列表</span>
+        <div class="btn btnBlue"
+          @click="filterMat">去除小于一公斤</div>
       </div>
       <div class="editCtn">
         <div class="rowCtn">
@@ -40,25 +45,29 @@
                 </div>
               </div>
               <div class="tbody">
-                <div class="trow">
-                  <div class="tcolumn">物料名称</div>
-                  <div class="tcolumn">颜色属性</div>
+                <div class="trow"
+                  v-for="(item,index) in searchList"
+                  :key="index">
+                  <div class="tcolumn">{{item.material_name}}</div>
+                  <div class="tcolumn">{{item.material_attribute}}</div>
                   <div class="tcolumn noPad"
                     style="flex:5">
-                    <div class="trow">
-                      <div class="tcolumn">缸号/批号</div>
-                      <div class="tcolumn">色号</div>
-                      <div class="tcolumn">库存数量</div>
-                      <div class="tcolumn">更新日期</div>
-                      <div class="tcolumn">仓库/货架</div>
+                    <div class="trow"
+                      v-for="(itemChild,indexChild) in item.childrenMergeInfo"
+                      :key="indexChild">
+                      <div class="tcolumn">{{itemChild.vat_code}}</div>
+                      <div class="tcolumn">{{itemChild.color_code}}</div>
+                      <div class="tcolumn">{{itemChild.total_weight}}kg</div>
+                      <div class="tcolumn">{{itemChild.update_time.date.slice(0,10)}}</div>
+                      <div class="tcolumn">{{itemChild.store_name}}</div>
                       <div class="tcolumn">
-                        <span class="tb_row middle">
-                          <!-- <span class="tb_handle_btn blue"
-                            @click.stop="addOpr(1,item.id,item.price,item.weight,item.material_name,item.material_attribute,item.vat_code,item.color_code)">入库</span>
-                          <span class="tb_handle_btn blue"
-                            @click.stop="addOpr(2,item.id,item.price,item.weight,item.material_name,item.material_attribute,item.vat_code,item.color_code)">出库</span>
-                          <span class="tb_handle_btn blue"
-                            @click.stop="addOpr(3,item.id,item.price,item.weight,item.material_name,item.material_attribute,item.vat_code,item.color_code)">回库</span> -->
+                        <span style="display:flex">
+                          <!-- <span style="color:#1a95ff;padding:0 6px;cursor:pointer"
+                            @click.stop="addOpr(1,'','',itemChild.total_weight,item.material_name,item.material_attribute,itemChild.vat_code,itemChild.color_code)">入库</span> -->
+                          <span style="color:#1a95ff;padding:0 6px;cursor:pointer"
+                            @click.stop="addOpr(2,'','',itemChild.total_weight,item.material_name,item.material_attribute,itemChild.vat_code,itemChild.color_code)">出库</span>
+                          <span style="color:#1a95ff;padding:0 6px;cursor:pointer"
+                            @click.stop="addOpr(3,'','',itemChild.total_weight,item.material_name,item.material_attribute,itemChild.vat_code,itemChild.color_code)">回库</span>
                         </span>
                       </div>
                     </div>
@@ -76,16 +85,9 @@
                   <div class="colCtn">
                     <div class="label">
                       <span class="text">名称/属性</span>
-                      <span class="explanation">(必选)</span>
                     </div>
                     <div class="content">
-                      <el-select placeholder="请选择纱线"
-                        v-model="item.yarn_id">
-                        <el-option v-for="item in nameColorArr"
-                          :key="item.id"
-                          :label="item.name"
-                          :value="item.id"></el-option>
-                      </el-select>
+                      <span class="inputspan">{{item.material_name + '/' + item.material_attribute}}</span>
                     </div>
                   </div>
                   <div class="colCtn">
@@ -93,8 +95,7 @@
                       <span class="text">批次/缸号</span>
                     </div>
                     <div class="content">
-                      <el-input placeholder="请填写批次/缸号"
-                        v-model="item.attr"></el-input>
+                      <span class="inputspan">{{item.attr}}</span>
                     </div>
                   </div>
                   <div class="colCtn">
@@ -102,8 +103,7 @@
                       <span class="text">色号</span>
                     </div>
                     <div class="content">
-                      <el-input placeholder="请填写色号"
-                        v-model="item.colorDetail"></el-input>
+                      <span class="inputspan">{{item.colorDetail}}</span>
                     </div>
                   </div>
                 </div>
@@ -240,7 +240,7 @@
           </div>
           <div class="leftCtn">
             <div class="btn noBorder"
-              @click="deleteLog(null,true)">批量删除</div>
+              @click="deleteLog(false)">批量删除</div>
             <div class="btn noBorder"
               @click="download">批量导出</div>
           </div>
@@ -256,29 +256,46 @@
                     <el-checkbox v-model="checkAll"
                       @change="checkAllLog"></el-checkbox>
                   </div>
+                  <div class="tcolumn">订单信息</div>
+                  <div class="tcolumn">操作类型</div>
                   <div class="tcolumn">物料名称</div>
                   <div class="tcolumn">物料属性</div>
                   <div class="tcolumn">缸号/批号</div>
                   <div class="tcolumn">色号</div>
-                  <div class="tcolumn">库存量</div>
+                  <div class="tcolumn">单价</div>
+                  <div class="tcolumn">数量</div>
+                  <div class="tcolumn">仓库</div>
+                  <div class="tcolumn">出/回库单位</div>
+                  <div class="tcolumn">操作人</div>
                   <div class="tcolumn">更新日期</div>
                   <div class="tcolumn">操作</div>
                 </div>
               </div>
               <div class="tbody">
-                <div class="trow">
+                <div class="trow"
+                  v-for="(item,index) in materialList"
+                  :key="index">
                   <div class="tcolumn"
                     style="flex:0.2">
-                    <el-checkbox v-model="checkAll"
-                      @change="checkAllLog"></el-checkbox>
+                    <el-checkbox v-model="item.check"></el-checkbox>
                   </div>
-                  <div class="tcolumn">物料名称</div>
-                  <div class="tcolumn">物料属性</div>
-                  <div class="tcolumn">缸号/批号</div>
-                  <div class="tcolumn">色号</div>
-                  <div class="tcolumn">库存量</div>
-                  <div class="tcolumn">更新日期</div>
-                  <div class="tcolumn">操作</div>
+                  <div class="tcolumn">{{item.order_code}}</div>
+                  <div class="tcolumn"
+                    :style="item.action_type===1 ? 'color:#1a95ff':item.action_type===2?'color:rgb(1, 180, 140)':item.action_type===3?'color:rgb(245, 34, 45)':''">{{item.action_type===1?'入库':item.action_type===2?'出库':'回库'}}</div>
+                  <div class="tcolumn">{{item.material_name}}</div>
+                  <div class="tcolumn">{{item.material_attribute}}</div>
+                  <div class="tcolumn">{{item.vat_code}}</div>
+                  <div class="tcolumn">{{item.color_code}}</div>
+                  <div class="tcolumn">{{item.price}}元</div>
+                  <div class="tcolumn">{{item.weight}}kg</div>
+                  <div class="tcolumn">{{item.store_name}}</div>
+                  <div class="tcolumn">{{item.client_name}}</div>
+                  <div class="tcolumn">{{item.user_name}}</div>
+                  <div class="tcolumn">{{item.complete_time}}</div>
+                  <div class="tcolumn">
+                    <span style="color:#F5222D;cursor:pointer"
+                      @click="deleteLog(item.id)">删除</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -299,12 +316,13 @@
 </template>
 
 <script>
-import { formCheck, downloadExcel } from '@/assets/js/common.js'
-import { yarnStore, yarnOutAndIn } from '@/assets/js/api.js'
+import { formCheck, downloadExcel, mergeData } from '@/assets/js/common.js'
+import { yarnStore, yarnOutAndIn, store } from '@/assets/js/api.js'
 export default {
   data () {
     return {
-      state: '',
+      loading: true,
+      searchYarnValue: '',
       formData: [],
       checkAll: false,
       storeName: '',
@@ -312,52 +330,70 @@ export default {
       storeDate: '',
       pageStoreLog: 1,
       totalStoreLog: 1,
-      materialList: []
+      materialList: [],
+      searchList: [],
+      storeList: []
     }
   },
   methods: {
+    filterMat () {
+      this.loading = true
+      yarnStore.list({
+        material_name: this.searchYarnValue
+      }).then((res) => {
+        this.searchList = mergeData(res.data.data.filter((item) => item.total_weight > 1), { mainRule: 'material_attribute', otherRule: [{ name: 'material_name' }] })
+        this.loading = false
+      })
+    },
     // 批量导出excel
     download () {
-      const data = this.storeLogList.filter(item => item.check)
+      const data = this.materialList.filter(item => item.check)
+      const actionArr = ['', '入库', '出库', '回库']
       data.forEach((item) => {
-        item.action_type = this.actionArr[item.action_type]
+        item.action_type = actionArr[item.action_type]
         item.totalPrice = Number(item.price * item.number)
-        item.product_code = item.product_info.product_code
-        item.product_name = item.product_info.name
-        item.style_code = item.product_info.style_code
-        item.size_color = item.size_info.size_name + '/' + item.size_info.color_name
-        item.time = item.created_at.date.slice(0, 10)
       })
       if (data.length === 0) {
         this.$message.error('请选择需要导出的日志')
         return
       }
       downloadExcel(data, [
-        { title: '产品编号', key: 'product_code' },
-        { title: '产品名称', key: 'product_name' },
-        { title: '款号', key: 'style_code' },
-        { title: '尺码颜色', key: 'size_color' },
-        { title: '单价', key: 'price' },
-        { title: '数量', key: 'number' },
-        { title: '总价', key: 'totalPrice' },
+        { title: '订单信息', key: 'product_code' },
         { title: '操作类型', key: 'action_type' },
-        { title: '出入库单位', key: 'client_name' },
+        { title: '物料名称', key: 'material_name' },
+        { title: '物料属性', key: 'material_attribute' },
+        { title: '缸号/批号', key: 'vat_code' },
+        { title: '色号', key: 'color_code' },
+        { title: '单价', key: 'price' },
+        { title: '数量', key: 'weight' },
+        { title: '总价', key: 'totalPrice' },
+        { title: '仓库', key: 'store_name' },
+        { title: '出/回库单位', key: 'client_name' },
         { title: '备注', key: 'desc' },
         { title: '操作人', key: 'user_name' },
-        { title: '操作时间', key: 'time' }
+        { title: '操作时间', key: 'complete_time' }
       ], this.orderInfo)
     },
     searchYarn (queryString, cb) {
-      const json = [{ value: '33', address: '3333' }]
-      yarnStore.list({
+      yarnStore.nameList({
         material_name: queryString
       }).then((res) => {
-        console.log(res)
-        cb(json)
+        cb(res.data.data.map((item) => {
+          return {
+            value: item,
+            name: item
+          }
+        }))
       })
     },
-    selectYarn (item) {
-      this.searchValue = item
+    selectYarn (str) {
+      this.loading = true
+      yarnStore.list({
+        material_name: str.value
+      }).then((res) => {
+        this.searchList = mergeData(res.data.data.filter((item) => item.total_weight > 0), { mainRule: 'material_attribute', otherRule: [{ name: 'material_name' }] })
+        this.loading = false
+      })
     },
     querySearchClient (queryString, cb) {
 
@@ -387,13 +423,86 @@ export default {
       this.formData = []
     },
     reset () {
-
+      this.storeDate = ''
+      this.pageStoreLog = 1
+      this.storeName = ''
+      this.clientName = ''
+      this.getStoreLogList()
+    },
+    deleteLog (id) {
+      this.$confirm('是否要删除该日志?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (id) {
+          yarnOutAndIn.delete({
+            id: [id]
+          }).then((res) => {
+            if (res.data.status) {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.getStoreLogList()
+            }
+          })
+        } else {
+          yarnOutAndIn.delete({
+            id: this.materialList.filter((item) => item.check).map((item) => item.id)
+          }).then((res) => {
+            if (res.data.status) {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.getStoreLogList()
+            }
+          })
+        }
+        yarnOutAndIn.delete({
+          id: [id]
+        }).then((res) => {
+          if (res.data.status) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            this.getDetail()
+          }
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     getStoreLogList () {
-
+      this.loading = true
+      var date = new Date()
+      var y = date.getFullYear()
+      var m = date.getMonth() + 1
+      m = m < 10 ? '0' + m : m
+      var d = date.getDate()
+      d = d < 10 ? ('0' + d) : d
+      yarnStore.log({
+        limit: 10,
+        page: this.pageStoreLog,
+        client_name: this.clientName,
+        material_name: this.storeName,
+        start_time: this.storeDate,
+        end_time: y + '-' + m + '-' + d
+      }).then((res) => {
+        this.materialList = res.data.data
+        this.totalStoreLog = res.data.meta.total
+        this.loading = false
+      })
     },
-    checkAllLog () {
-
+    checkAllLog (flag) {
+      this.materialList.forEach((item) => {
+        item.check = flag
+      })
     },
     saveAll () {
       let errMsg = ''
@@ -420,22 +529,30 @@ export default {
           order_id: item.yarn_id // 这个应该是空字符串
         }
       })
+      this.loading = true
       yarnOutAndIn.create({
         data: formData
       }).then((res) => {
         if (res.data.status) {
-          this.$message.success('添加成功')
+          this.$message.success('操作成功')
           this.formData = []
           this.getStoreLogList()
+          yarnStore.list({
+            material_name: this.searchYarnValue
+          }).then((res) => {
+            this.searchList = mergeData(res.data.data.filter((item) => item.total_weight > 0), { mainRule: 'material_attribute', otherRule: [{ name: 'material_name' }] })
+            this.loading = false
+          })
         }
       })
     }
   },
   mounted () {
-    yarnStore.list({
-      material_name: ''
+    this.getStoreLogList()
+    store.list({
+      type: 2
     }).then((res) => {
-      this.materialList = res.data.data
+      this.storeList = res.data.data
     })
   }
 }

@@ -39,7 +39,9 @@ const yarnOutAndIn = {
 }
 // 物料库存
 const yarnStore = {
-  list: (params) => http.get(`${baseUrl}/material/stock/list`, params)
+  nameList: (params) => http.get(`${baseUrl}/material/all`, params),
+  list: (params) => http.get(`${baseUrl}/material/stock/list`, params),
+  log: (params) => http.get(`${baseUrl}/material/stock/log`, params)
 }
 export {
   login,

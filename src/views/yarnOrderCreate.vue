@@ -159,7 +159,6 @@ import { flatten } from '@/assets/js/common.js'
 export default {
   data () {
     return {
-      localClientArr: [],
       createStoreFlag: false,
       orderName: '',
       clientName: '',
@@ -175,16 +174,26 @@ export default {
       storeInfo: {
         name: ''
       },
+      localYarnclientArr: [],
       orderDate: (new Date()).getFullYear() + '-' + ((new Date()).getMonth() + 1 < 10 ? '0' + ((new Date()).getMonth() + 1) : (new Date()).getMonth() + 1) + '-' + ((new Date()).getDate() < 10 ? '0' + (new Date()).getDate() : (new Date()).getDate())
     }
   },
   methods: {
     querySearchClient (queryString, cb) {
-      cb(queryString ? this.addValue(this.localClientArr.filter(this.createFilter(queryString))) : this.addValue(this.localClientArr))
+      cb(queryString ? this.addValue(this.localYarnclientArr.filter(this.createFilter(queryString))) : this.addValue(this.localYarnclientArr))
     },
     createFilter (queryString) {
       return (obj) => {
         return (obj.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      }
+    },
+    getLocal (type, name) {
+      if (type === 'yarnclient') {
+        if (this.localYarnclientArr.find((item) => item === name) === -1) {
+          return
+        }
+        this.localYarnclientArr.push(name)
+        window.localStorage.setItem('yarnclient', JSON.stringify(this.localYarnclientArr))
       }
     },
     // 能把数组转为对象数组

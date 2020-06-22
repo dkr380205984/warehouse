@@ -16,12 +16,12 @@
               placeholder="搜索订单号">
             </el-input>
             <el-input class="inputs"
-              v-model="clientName"
+              v-model="yarnName"
               @change="changeRouter(1)"
               placeholder="搜索纱线名称">
             </el-input>
             <el-input class="inputs"
-              v-model="yarnName"
+              v-model="clientName"
               @change="changeRouter(1)"
               placeholder="搜索公司名称">
             </el-input>
@@ -83,13 +83,16 @@
               <span class="text">{{item.material_info|getAllMat}}</span>
             </div>
             <div class="col">
-              <span class="text">{{item.material_info|totalWeight}}kg</span>
+              <span class="text"
+                style="color:#1a95ff">{{item.material_info|totalWeight}}kg</span>
             </div>
             <div class="col">
-              <span class="text">入库统计</span>
+              <span class="text"
+                style="color:#E6A23C">{{item.stock_log|totalInWeight}}kg</span>
             </div>
             <div class="col">
-              <span class="text">出库统计</span>
+              <span class="text"
+                style="color:#01B48C">{{item.stock_log|totalOutWeight}}kg</span>
             </div>
             <div class="col">
               <span class="text">{{item.order_time}}</span>
@@ -305,11 +308,31 @@ export default {
   },
   filters: {
     getAllMat (matArr) {
-      return matArr.map((item) => item.material_name).join(';')
+      const str = Array.from(new Set(matArr.map((item) => item.material_name))).join(';')
+      if (str.length > 34) {
+        return str.slice(0, 32) + '...'
+      }
+      return str
     },
     totalWeight (matArr) {
       return matArr.reduce((total, current) => {
         return total + Number(current.weight)
+      }, 0)
+    },
+    totalInWeight (logArr) {
+      return logArr.reduce((total, current) => {
+        if (current.action_type === 1) {
+          return total + Number(current.weight)
+        }
+        return total
+      }, 0)
+    },
+    totalOutWeight (logArr) {
+      return logArr.reduce((total, current) => {
+        if (current.action_type === 2) {
+          return total + Number(current.weight)
+        }
+        return total
       }, 0)
     }
   },
@@ -326,14 +349,21 @@ export default {
   methods: {
     changeRouter (page) {
       const pages = page || 1
-      this.$router.push('/product/productList/page=' + pages)
+      this.$router.push('/yarnOrderList/page=' + pages + '&&order_code=' + this.orderCode + '&&material_name=' + this.yarnName + '&&client_name=' + this.clientName)
     },
     reset () {
-
+      this.page = 1
+      this.orderCode = ''
+      this.yarnName = ''
+      this.clientName = ''
+      this.changeRouter()
     },
     getList () {
       this.loading = true
       yarnOrder.list({
+        order_code: this.orderCode,
+        material_name: this.yarnName,
+        client_name: this.clientName,
         page: this.page,
         limit: 5
       }).then((res) => {
@@ -389,6 +419,9 @@ export default {
     getFilters () {
       const params = getHash(this.$route.params.params)
       this.page = Number(params.page)
+      this.orderCode = params.order_code || ''
+      this.yarnName = params.material_name || ''
+      this.clientName = params.client_name || ''
     },
     deleteOrder (id) {
       this.$confirm('请确保该采购单没有任何出入库记录才能删除，是否确认删除?', '提示', {
