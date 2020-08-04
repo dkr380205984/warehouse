@@ -20,7 +20,13 @@
               <img class="icon"
                 :src=" require('@/assets/image/index/采购单.png')" />
               <span class="text"
-                @click="$router.push('/yarnOrderCreate')">添加采购单</span>
+                @click="$router.push('/yarnOrderCreate')">添加原料采购单</span>
+            </div>
+            <div class="menu">
+              <img class="icon"
+                :src=" require('@/assets/image/index/采购单.png')" />
+              <span class="text"
+                @click="$router.push('/materialOrderCreate')">添加辅料采购单</span>
             </div>
             <div class="menu">
               <img class="icon"
@@ -37,6 +43,8 @@
           </div>
         </div>
         <div class="rightCtn">
+          <i class="el-icon-setting elIcon"
+            @click="$router.push('/setting')"></i>
           <div class="logout"
             style="margin-right:20px"
             @click="addUserFlag = true">新增帐号</div>

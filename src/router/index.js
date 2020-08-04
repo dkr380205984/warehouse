@@ -21,8 +21,12 @@ const routes = [
       component: () => import('../views/proStoreDetail.vue')
     }, {
       path: '/yarnOrderCreate',
-      name: '添加采购单',
+      name: '添加原料采购单',
       component: () => import('../views/yarnOrderCreate.vue')
+    }, {
+      path: '/materialOrderCreate',
+      name: '添加辅料采购单',
+      component: () => import('../views/materialOrderCreate.vue')
     }, {
       path: '/yarnOrderList/:params',
       name: '采购单列表',
@@ -35,6 +39,10 @@ const routes = [
       path: '/yarnStoreDetail',
       name: '物料出入库',
       component: () => import('../views/yarnStoreDetail.vue')
+    }, {
+      path: '/setting',
+      name: '设置',
+      component: () => import('../views/setting.vue')
     }]
   }, {
     path: '/print/goStockTable/:id',

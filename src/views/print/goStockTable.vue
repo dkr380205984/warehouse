@@ -41,13 +41,13 @@
         <div class="print_row">
           <div class="row_item center">入库时间</div>
           <div class="row_item left w180">物料名称</div>
-          <div class="row_item right">物料单价</div>
+          <!-- <div class="row_item right">物料单价</div> -->
           <div class="row_item left">颜色属性</div>
           <div class="row_item left">批号/缸号</div>
           <div class="row_item left">色号</div>
           <div class="row_item right">入库数量</div>
           <div class="row_item right">入库件数</div>
-          <div class="row_item right">入库总价</div>
+          <!-- <div class="row_item right">入库总价</div> -->
           <div class="row_item left">入库仓库</div>
         </div>
         <div class="print_row"
@@ -55,13 +55,13 @@
           :key="index">
           <div class="row_item center">{{$getTime(item.created_at)}}</div>
           <div class="row_item left w180">{{item.material_name}}</div>
-          <div class="row_item right">{{item.price || 0}}元/kg</div>
+          <!-- <div class="row_item right">{{item.price || 0}}元/kg</div> -->
           <div class="row_item left">{{item.material_attribute}}</div>
           <div class="row_item left">{{item.vat_code}}</div>
           <div class="row_item left">{{item.color_code}}</div>
           <div class="row_item right">{{item.weight}}kg</div>
           <div class="row_item right">{{item.number}}</div>
-          <div class="row_item right">{{item.total_price}}元</div>
+          <!-- <div class="row_item right">{{item.total_price}}元</div> -->
           <div class="row_item left">{{item.store_name}}</div>
         </div>
         <div class="print_row"
@@ -71,13 +71,13 @@
         <div class="print_row bgGray">
           <div class="row_item center noBorder">合计</div>
           <div class="row_item left w180 noBorder"></div>
-          <div class="row_item right noBorder"></div>
+          <!-- <div class="row_item right noBorder"></div> -->
           <div class="row_item left noBorder"></div>
           <div class="row_item left noBorder"></div>
           <div class="row_item left noBorder"></div>
           <div class="row_item right noBorder">{{compTotalWeight}}kg</div>
           <div class="row_item right noBorder"></div>
-          <div class="row_item right noBorder">{{compTotalPrice}}元</div>
+          <!-- <div class="row_item right noBorder">{{compTotalPrice}}元</div> -->
           <div class="row_item left noBorder"></div>
         </div>
       </div>

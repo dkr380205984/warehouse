@@ -363,7 +363,7 @@
                   <div class="tcolumn">{{item.client_name}}</div>
                   <div class="tcolumn">{{item.desc}}</div>
                   <div class="tcolumn">{{item.user_name}}</div>
-                  <div class="tcolumn">{{item.created_at.date.slice(0,10)}}</div>
+                  <div class="tcolumn">{{item.created_at.slice(0,10)}}</div>
                   <div class="tcolumn">
                     <span style="color:#F5222D;cursor:pointer"
                       @click="deleteLog(item.id)">删除</span>
@@ -536,7 +536,7 @@
               class="editBtn red"
               @click="deleteChild(updateInfo.childrenArr,indexChild)">删除</div>
           </div>
-          <div class="row">
+          <!-- <div class="row">
             <div class="label">选择仓库：</div>
             <div class="info">
               <el-select placeholder="请选择仓库"
@@ -556,7 +556,7 @@
                 :fetch-suggestions="querySearchClient"
                 placeholder="请输入出入库单位"></el-autocomplete>
             </div>
-          </div>
+          </div> -->
           <div class="row">
             <div class="label">上传图片：</div>
             <div class="info"
@@ -997,7 +997,7 @@ export default {
           this.$message.success('添加成功')
           this.resetPro()
           this.getLocal('client', data.client_name)
-          data.size_info.forEach((item) => {
+          formData.size_info.forEach((item) => {
             this.getLocal('size', item.size)
             this.getLocal('color', item.color)
           })
@@ -1026,12 +1026,14 @@ export default {
         id: item.id,
         name: item.name,
         type: item.style_code,
-        childrenArr: [{
-          color: '',
-          size: '',
-          number: '',
-          price: ''
-        }],
+        childrenArr: item.size_info.map((itemChild) => {
+          return {
+            color: itemChild.color_name,
+            size: itemChild.size_name,
+            number: itemChild.total_number,
+            price: itemChild.avg_price
+          }
+        }),
         store_id: '',
         client_name: '',
         image: item.image
@@ -1104,6 +1106,7 @@ export default {
         return
       }
       const data = this.updateInfo
+      console.log(data)
       const formData = {
         id: data.id,
         name: data.name,
@@ -1114,14 +1117,14 @@ export default {
         style_code: data.type,
         store_id: data.store_id,
         client_name: data.client_name,
-        size_info: this.updateInfo.store_id ? data.childrenArr.map((item) => {
+        size_info: data.childrenArr.map((item) => {
           return {
             size_name: item.size,
             color_name: item.color,
             number: item.number,
             price: item.price
           }
-        }) : []
+        })
       }
       product.create(formData).then((res) => {
         if (res.data.status) {

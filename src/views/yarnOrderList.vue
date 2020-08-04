@@ -25,6 +25,17 @@
               @change="changeRouter(1)"
               placeholder="搜索公司名称">
             </el-input>
+            <el-select class="inputs"
+              v-model="type"
+              @change="changeRouter(1)"
+              placeholder="采购单类型">
+              <el-option value="0"
+                label="全部"></el-option>
+              <el-option value="1"
+                label="原料采购单"></el-option>
+              <el-option value="2"
+                label="辅料采购单"></el-option>
+            </el-select>
             <div class="btn btnGray"
               style="margin-left:0"
               @click="reset">重置</div>
@@ -85,15 +96,15 @@
             </div>
             <div class="col">
               <span class="text"
-                style="color:#1a95ff">{{item.material_info|totalWeight}}kg</span>
+                style="color:#1a95ff">{{item.material_info|totalWeight}}{{item.order_type===1?'kg':''}}</span>
             </div>
             <div class="col">
               <span class="text"
-                style="color:#E6A23C">{{item.stock_log|totalInWeight}}kg</span>
+                style="color:#E6A23C">{{item.stock_log|totalInWeight}}{{item.order_type===1?'kg':''}}</span>
             </div>
             <div class="col">
               <span class="text"
-                style="color:#01B48C">{{item.stock_log|totalOutWeight}}kg</span>
+                style="color:#01B48C">{{item.stock_log|totalOutWeight}}{{item.order_type===1?'kg':''}}</span>
             </div>
             <div class="col">
               <span class="text">{{item.order_time}}</span>
@@ -143,7 +154,7 @@
                         <div class="tcolumn noPad"
                           style="flex:8">
                           <div class="trow">
-                            <div class="tcolumn">入库重量</div>
+                            <div class="tcolumn">入库数量</div>
                             <div class="tcolumn">入库件数</div>
                             <div class="tcolumn">单价</div>
                             <div class="tcolumn">总金额</div>
@@ -157,7 +168,7 @@
                           style="flex:7">
                           <div class="trow">
                             <div class="tcolumn">出库单位</div>
-                            <div class="tcolumn">出库重量</div>
+                            <div class="tcolumn">出库数量</div>
                             <div class="tcolumn">出库件数</div>
                             <div class="tcolumn">仓库</div>
                             <div class="tcolumn">备注</div>
@@ -201,7 +212,7 @@
                     <div class="tcolumn"
                       style="background:#D8F0E8">{{itemChild.material_attribute}}</div>
                     <div class="tcolumn"
-                      style="background:#D8F0E8">{{itemChild.weight}}kg</div>
+                      style="background:#D8F0E8">{{itemChild.weight}}{{itemChild.unit}}</div>
                     <div class="tcolumn noPad"
                       style="flex:23">
                       <div class="trow"
@@ -220,8 +231,8 @@
                           <div class="trow"
                             v-for="(itemIn,indexIn) in itemGrandson.in_log"
                             :key="indexIn">
-                            <div class="tcolumn">{{itemIn.weight}}kg</div>
-                            <div class="tcolumn">{{itemIn.number}}件</div>
+                            <div class="tcolumn">{{itemIn.weight}}{{itemIn.unit}}</div>
+                            <div class="tcolumn">{{itemIn.number||'0'}}件</div>
                             <div class="tcolumn">{{itemIn.price}}元</div>
                             <div class="tcolumn">{{Number(itemIn.number*itemIn.price)}}元</div>
                             <div class="tcolumn">{{itemIn.store_name}}</div>
@@ -242,7 +253,7 @@
                             v-for="(itemOut,indexOut) in itemGrandson.out_log"
                             :key="indexOut">
                             <div class="tcolumn">{{itemOut.client_name}}</div>
-                            <div class="tcolumn">{{itemOut.weight}}kg</div>
+                            <div class="tcolumn">{{itemOut.weight}}{{itemOut.unit}}</div>
                             <div class="tcolumn">{{itemOut.number}}件</div>
                             <div class="tcolumn">{{itemOut.store_name}}</div>
                             <div class="tcolumn">{{itemOut.desc}}</div>
@@ -261,7 +272,7 @@
                           <div class="trow"
                             v-for="(itemBack,indexBack) in itemGrandson.back_log"
                             :key="indexBack">
-                            <div class="tcolumn">{{itemBack.weight}}kg</div>
+                            <div class="tcolumn">{{itemBack.weight}}{{itemBack.unit}}</div>
                             <div class="tcolumn">{{itemBack.store_name}}</div>
                             <div class="tcolumn">{{itemBack.desc}}</div>
                             <div class="tcolumn">{{itemBack.user_name}}</div>
@@ -283,7 +294,7 @@
         </div>
         <div class="pageCtn">
           <el-pagination background
-            :page-size="10"
+            :page-size="5"
             layout="prev, pager, next"
             :total="total"
             :current-page.sync="page">
@@ -307,6 +318,7 @@ export default {
       orderCode: '',
       clientName: '',
       yarnName: '',
+      type: '0',
       list: []
     }
   },
@@ -356,13 +368,14 @@ export default {
     },
     changeRouter (page) {
       const pages = page || 1
-      this.$router.push('/yarnOrderList/page=' + pages + '&&order_code=' + this.orderCode + '&&material_name=' + this.yarnName + '&&client_name=' + this.clientName)
+      this.$router.push('/yarnOrderList/page=' + pages + '&&order_code=' + this.orderCode + '&&material_name=' + this.yarnName + '&&client_name=' + this.clientName + '&&type=' + this.type)
     },
     reset () {
       this.page = 1
       this.orderCode = ''
       this.yarnName = ''
       this.clientName = ''
+      this.type = '0'
       this.changeRouter()
     },
     getList () {
@@ -372,9 +385,9 @@ export default {
         material_name: this.yarnName,
         client_name: this.clientName,
         page: this.page,
+        order_type: Number(this.type),
         limit: 5
       }).then((res) => {
-        console.log(res.data.data)
         this.list = res.data.data
         this.list.forEach((item) => {
           item.material_info.forEach((itemMat) => {
@@ -429,6 +442,7 @@ export default {
       this.orderCode = params.order_code || ''
       this.yarnName = params.material_name || ''
       this.clientName = params.client_name || ''
+      this.type = params.type || '0'
     },
     deleteOrder (id) {
       this.$confirm('请确保该采购单没有任何出入库记录才能删除，是否确认删除?', '提示', {

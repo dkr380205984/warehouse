@@ -62,11 +62,11 @@
                 <span class="tb_row">{{item.price}}元</span>
                 <span class="tb_row">{{item.material_attribute}}</span>
                 <span class="tb_row"
-                  style="color:#1a95ff">{{item.weight}}kg</span>
+                  style="color:#1a95ff">{{item.weight}}{{item.unit}}</span>
                 <span class="tb_row"
-                  style="color:#E6A23C">{{item.in_weight}}kg</span>
+                  style="color:#E6A23C">{{item.in_weight?item.in_weight:0}}{{item.unit}}</span>
                 <span class="tb_row"
-                  style="color:#01B48C">{{Number(item.price*item.in_weight)}}元</span>
+                  style="color:#01B48C">{{item.in_weight?Number(item.price*item.in_weight):0}}元</span>
                 <span class="tb_row middle">
                   <span class="tb_handle_btn blue"
                     @click.stop="addOpr(1,item.id,item.price,item.weight,item.material_name,item.material_attribute)">入库</span>
@@ -100,12 +100,12 @@
                     style="flex:0.3">
                     <el-checkbox v-model="itemChild.check"></el-checkbox>
                   </span>
-                  <span class="tb_row">{{itemChild.vat_code}}</span>
-                  <span class="tb_row">{{itemChild.color_code}}</span>
+                  <span class="tb_row">{{itemChild.vat_code||'/'}}</span>
+                  <span class="tb_row">{{itemChild.color_code||'/'}}</span>
                   <span class="tb_row">{{itemChild.action_type===1?'入库':itemChild.action_type===2?'出库':'回库'}}</span>
-                  <span class="tb_row">{{itemChild.weight}}kg</span>
+                  <span class="tb_row">{{itemChild.weight||'0'}}{{itemChild.unit}}</span>
                   <span class="tb_row">{{itemChild.number}}件</span>
-                  <span class="tb_row">{{itemChild.weight*item.price}}元</span>
+                  <span class="tb_row">{{itemChild.weight?itemChild.weight*item.price:0}}元</span>
                   <span class="tb_row">{{itemChild.store_name}}</span>
                   <span class="tb_row">{{itemChild.client_name}}</span>
                   <span class="tb_row">{{itemChild.desc}}</span>
@@ -233,7 +233,7 @@
                 <span class="text">{{Number(item.type)===1?'入库':Number(item.type)===2?'出库':'回库'}}总价</span>
               </div>
               <div class="content">
-                <span class="inputspan">{{Number(item.number*item.price)}}元</span>
+                <span class="inputspan">{{item.number?Number(item.number*item.price):0}}元</span>
               </div>
             </div>
             <div class="colCtn">
@@ -421,7 +421,8 @@ export default {
           number: item.jianshu,
           action_type: item.type,
           complete_time: item.date,
-          order_id: item.yarn_id
+          order_id: item.yarn_id,
+          material_type: this.yarnOrderDetail.order_type // 物料类型跟采购单类型一样
         }
       })
       yarnOutAndIn.create({
@@ -468,11 +469,18 @@ export default {
         this.yarnOrderDetail.material_info.forEach((item) => {
           item.logList = []
           this.yarnOrderDetail.stock_log.forEach((itemLog) => {
+            item.in_weight = this.yarnOrderDetail.stock_log.reduce((total, current) => {
+              if (current.action_type === 1 && item.material_name === current.material_name && item.material_attribute === current.material_attribute) {
+                return total + current.weight
+              }
+              return total
+            }, 0)
             if (itemLog.order_id === item.id) {
               item.logList.push(itemLog)
             }
           })
         })
+        console.log(this.yarnOrderDetail)
         this.$forceUpdate()
         this.loading = false
       })

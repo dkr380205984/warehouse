@@ -3,7 +3,7 @@
     class="contentMain">
     <div class="module">
       <div class="titleCtn">
-        <span class="title">原料采购信息</span>
+        <span class="title">辅料采购信息</span>
         <div class="btn btnBlue"
           @click="createStoreFlag=true">添加新仓库</div>
       </div>
@@ -53,9 +53,9 @@
         <div class="rowCtn">
           <div class="tableCtnLv2">
             <div class="tb_header">
-              <span class="tb_row">纱线名称</span>
+              <span class="tb_row">辅料名称</span>
               <span class="tb_row">单价</span>
-              <span class="tb_row">颜色</span>
+              <span class="tb_row">颜色/属性</span>
               <span class="tb_row">数量</span>
               <span class="tb_row middle">总价</span>
               <span class="tb_row middle">操作</span>
@@ -67,7 +67,7 @@
                 <el-autocomplete class="editInput"
                   v-model="item.yarnName"
                   :fetch-suggestions="querySearchYarn"
-                  placeholder="请输入纱线名称"></el-autocomplete>
+                  placeholder="请输入辅料名称"></el-autocomplete>
               </span>
               <span class="tb_row">
                 <el-input class="editInput"
@@ -85,14 +85,18 @@
                     <el-autocomplete class="editInput"
                       v-model="itemChild.color"
                       :fetch-suggestions="querySearchColor"
-                      placeholder="请输入纱线颜色"></el-autocomplete>
+                      placeholder="请输入辅料颜色/属性"></el-autocomplete>
                   </span>
-                  <span class="tb_row">
+                  <span class="tb_row"
+                    style="position:relative">
                     <el-input class="editInput"
                       placeholder="请输入采购数量"
                       v-model="itemChild.number">
-                      <template slot="append">kg</template>
                     </el-input>
+                    <input class="unit"
+                      placeholder="单位"
+                      @change="getUnit(item,itemChild.unit)"
+                      v-model="itemChild.unit" />
                   </span>
                   <span class="tb_row middle">
                     <span class="editInput"
@@ -111,7 +115,7 @@
             <div class="tb_content"
               style="padding:0">
               <span class="tb_row tb_row_handle_btn"
-                @click="addYarn">+新增纱线</span>
+                @click="addYarn">+新增辅料</span>
             </div>
           </div>
         </div>
@@ -197,6 +201,11 @@ export default {
         return (obj.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
       }
     },
+    getUnit (item, unit) {
+      item.childrenArr.forEach((itemChild) => {
+        itemChild.unit = unit
+      })
+    },
     getLocal (type, name) {
       if (type === 'yarnclient') {
         if (this.localYarnclientArr.indexOf(name) !== -1) {
@@ -234,14 +243,16 @@ export default {
         price: '',
         childrenArr: [{
           color: '',
-          number: ''
+          number: '',
+          unit: ''
         }]
       })
     },
     addColor (item) {
       item.childrenArr.push({
         number: '',
-        color: ''
+        color: '',
+        unit: item.childrenArr[0].unit ? item.childrenArr[0].unit : ''
       })
     },
     deleteColor (item, index, indexChild) {
@@ -291,6 +302,9 @@ export default {
           if (!itemChild.number) {
             errMsg = '有未填写的数量信息'
           }
+          if (!itemChild.unit) {
+            errMsg = '有未填写的单位信息'
+          }
         })
       })
       if (errMsg) {
@@ -298,7 +312,7 @@ export default {
         return
       }
       const formData = {
-        order_type: 1,
+        order_type: 2,
         order_code: this.orderName,
         client_name: this.clientName,
         order_time: this.orderDate,
@@ -309,8 +323,8 @@ export default {
             material_attribute: item.color,
             price: item.price,
             weight: item.number,
-            material_type: 1,
-            unit: 'kg'
+            unit: item.unit,
+            material_type: 2
           }
         })
       }
