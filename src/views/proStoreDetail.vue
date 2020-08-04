@@ -248,13 +248,13 @@
             <div class="addRows">
               <span v-if="!addProFlag"
                 class="once gray"
-                @click="addPro()">添加产品</span>
+                @click="addPro()">添加出入库</span>
               <span v-if="addProFlag"
                 class="once cancle"
                 @click="cancle">取消</span>
               <span v-if="addProFlag"
                 class="once normal"
-                @click="addPro">添加产品</span>
+                @click="addPro">添加出入库</span>
               <span v-if="addProFlag"
                 class="once ok"
                 @click="saveLog">保存</span>
@@ -308,6 +308,8 @@
           <div class="leftCtn">
             <div class="btn noBorder"
               @click="deleteLog(null,true)">批量删除</div>
+            <div class="btn noBorder"
+              @click="printTable()">批量打印</div>
             <div class="btn noBorder"
               @click="download">批量导出</div>
           </div>
@@ -436,9 +438,9 @@
               @click="deleteChild(productInfo.childrenArr,indexChild)">删除</div>
           </div>
           <div class="row">
-            <div class="label">选择仓库：</div>
+            <div class="label">存放仓库：</div>
             <div class="info">
-              <el-select placeholder="请选择仓库"
+              <el-select placeholder="请选择存放仓库"
                 v-model="productInfo.store_id">
                 <el-option v-for="item in stockArr"
                   :key="item.id"
@@ -448,12 +450,12 @@
             </div>
           </div>
           <div class="row">
-            <div class="label">出入库单位：</div>
+            <div class="label">供应商单位：</div>
             <div class="info">
               <el-autocomplete class="inline-input"
                 v-model="productInfo.client_name"
                 :fetch-suggestions="querySearchClient"
-                placeholder="请输入出入库单位"></el-autocomplete>
+                placeholder="请输入供应商单位"></el-autocomplete>
             </div>
           </div>
           <div class="row">
@@ -463,7 +465,7 @@
               <el-upload class="upload"
                 action="https://upload.qiniup.com/"
                 accept="image/jpeg,image/gif,image/png,image/bmp"
-                :file-list="fileArr"
+                :file-list="productInfo.image"
                 :on-success="successFile"
                 :data="postData"
                 ref="uploada"
@@ -527,6 +529,7 @@
               <el-input v-model="itemChild.price"
                 placeholder="单价"></el-input>
               <el-input v-model="itemChild.number"
+                disabled
                 placeholder="数量"></el-input>
             </div>
             <div v-if="indexChild===0"
@@ -697,8 +700,17 @@ export default {
     },
     createFilter (queryString) {
       return (obj) => {
-        return (obj.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        return (obj.indexOf(queryString) === 0)
       }
+    },
+    // 批量打印
+    printTable (data) {
+      data = data || this.storeLogList.filter(itemF => itemF.check).map(itemM => itemM.id)
+      if (data.length === 0) {
+        this.$message.warning('请选择需要打印的日志')
+        return
+      }
+      window.open(`/print/goStockProTable/${data.join('-')}`)
     },
     // 能把数组转为对象数组
     addValue (arr) {
@@ -741,7 +753,7 @@ export default {
         item.product_name = item.product_info.name
         item.style_code = item.product_info.style_code
         item.size_color = item.size_info.size_name + '/' + item.size_info.color_name
-        item.time = item.created_at.date.slice(0, 10)
+        item.time = item.created_at.slice(0, 10)
       })
       if (data.length === 0) {
         this.$message.error('请选择需要导出的日志')
@@ -965,9 +977,9 @@ export default {
         if (!item.number) {
           errorMsg = '数量未填写'
         }
-        if (!item.price) {
-          errorMsg = '单价未填写'
-        }
+        // if (!item.price) {
+        //   errorMsg = '单价未填写'
+        // }
       })
       if (errorMsg) {
         this.$message.error(errorMsg)
@@ -988,7 +1000,7 @@ export default {
             size_name: item.size,
             color_name: item.color,
             number: item.number,
-            price: item.price
+            price: item.price || 0
           }
         })
       }
@@ -998,13 +1010,25 @@ export default {
           this.resetPro()
           this.getLocal('client', data.client_name)
           formData.size_info.forEach((item) => {
-            this.getLocal('size', item.size)
-            this.getLocal('color', item.color)
+            this.getLocal('size', item.size_name)
+            this.getLocal('color', item.color_name)
           })
         }
         this.createProFlag = false
         this.getProList()
         this.getStoreLogList()
+        this.$confirm('是否去打印相关成衣出入库单?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.printTable(res.data.data)
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
       })
     },
     resetPro () {
@@ -1170,9 +1194,9 @@ export default {
           if (!itemChild.number) {
             errorMsg = '请填写数量'
           }
-          if (!itemChild.price) {
-            errorMsg = '请填写价格，如果没有价格请填0'
-          }
+          // if (!itemChild.price) {
+          //   errorMsg = '请填写价格，如果没有价格请填0'
+          // }
         })
       })
       if (errorMsg) {
@@ -1189,7 +1213,7 @@ export default {
           size_info: item.childrenArr.map((itemChild) => {
             return {
               size_id: itemChild.colorSize,
-              price: itemChild.price,
+              price: itemChild.price || 0,
               number: itemChild.number
             }
           })
@@ -1198,12 +1222,24 @@ export default {
       outAndIn.create({
         data: formData
       }).then((res) => {
-        if (res.data.status) {
+        if (res.data.status !== false) {
           this.$message.success('添加成功')
           this.productData = []
           this.addProFlag = false
           this.getProList()
           this.getStoreLogList()
+          this.$confirm('是否去打印相关成衣出入库单?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.printTable(res.data.data)
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
           this.$forceUpdate()
         }
       })

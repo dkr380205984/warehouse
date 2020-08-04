@@ -60,6 +60,10 @@ const routes = [
     path: '/print/orderYarnTable/:id',
     name: 'orderYarnTable',
     component: () => import('../views/print/orderYarnTable.vue')
+  }, {
+    path: '/print/goStockProTable/:id',
+    name: 'goStockProTable',
+    component: () => import('../views/print/goStockProTable.vue')
   }
 ]
 

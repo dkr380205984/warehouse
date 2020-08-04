@@ -1,0 +1,78 @@
+@import '../common.less';
+#goStockTable{
+  font-size: 16px;
+  .item{
+    display: flex;
+    font-size:16px;
+    .item_row{
+      flex:1;
+      min-width: 300px;
+      word-break: break-all;
+      display: flex;
+    }
+  }
+  .w140{
+    min-width: 140px;
+    max-width: 140px;
+  }
+  .crosswise{
+    width: 1140px!important;
+    min-height: 620px!important;
+  }
+  .print_head{
+    .title{
+      font-size: 28px;
+    }
+  }
+  .print_row{
+    font-size: 18px;
+  }
+  .left{
+    padding-left: 8px!important;
+  }
+  .w180{
+    position: relative;
+    .style_code{
+      position: absolute;
+      left: 4px;
+      bottom: 4px;
+    }
+    .color{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+    }
+    .size{
+      position: absolute;
+      right: 4px;
+      top:4px;
+    }
+    .first_line{
+      width: 109px;
+      border-bottom: 1px solid rgba(0,0,0,.25);
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-origin: 0 0;
+      transform: rotateZ(32deg);
+    }
+    .second_line{
+      width: 183px;
+      border-bottom: 1px solid rgba(0,0,0,.25);
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-origin: 0 0;
+      transform: rotateZ(11deg);
+    }
+  }
+  .footCtn{
+    display: flex;
+    padding: 0 24px;
+    align-items: center;
+    margin-top: 8px;
+    .item{
+      flex: 1;
+    }
+  }
+}

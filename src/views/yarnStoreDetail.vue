@@ -571,6 +571,14 @@ export default {
     deleteData (index) {
       this.formData.splice(index, 1)
     },
+    // 能把数组转为对象数组
+    addValue (arr) {
+      return arr.map((item) => {
+        return {
+          value: item
+        }
+      })
+    },
     addOpr (type, id, price, weight, name, color, ganghao, sehao) {
       this.formData.push({
         yarn_id: '',

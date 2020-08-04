@@ -23,7 +23,8 @@ const store = {
 const outAndIn = {
   create: (params) => http.post(`${baseUrl}/store/total/save`, params, 'application/json'),
   list: (params) => http.get(`${baseUrl}/store/log/list`, params),
-  delete: (params) => http.post(`${baseUrl}/store/log/delete`, params, 'application/json')
+  delete: (params) => http.post(`${baseUrl}/store/log/delete`, params, 'application/json'),
+  detail: (params) => http.get(`${baseUrl}/store/log/detail`, params)
 }
 // 物料采购单
 const yarnOrder = {
