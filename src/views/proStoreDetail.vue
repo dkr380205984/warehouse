@@ -2,7 +2,28 @@
   <div id="storeDetail"
     class="contentMain"
     v-loading="loading">
-    <div class="module">
+    <div class="listCutCtn">
+      <div class="cut_item"
+        :class="{'active':showProList}"
+        @click="showProList = true">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-wuliaojihua"></use>
+        </svg>
+        <span class="name">产品列表</span>
+      </div>
+      <div class="cut_item"
+        :class="{'active':!showProList}"
+        @click="showProList = false">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-wuliaochuruku"></use>
+        </svg>
+        <span class="name">仓库列表</span>
+      </div>
+    </div>
+    <div class="module"
+      v-if="showProList">
       <div class="titleCtn">
         <span class="title">产品列表</span>
         <div class="btn btnBlue"
@@ -32,7 +53,7 @@
           </div>
         </div>
         <div class="list">
-          <div class="flexTb"
+          <!-- <div class="flexTb"
             style="border-bottom:0">
             <div class="thead">
               <div class="trow">
@@ -45,7 +66,6 @@
                     <div class="tcolumn">尺码配色</div>
                     <div class="tcolumn">库存数量</div>
                     <div class="tcolumn">销售数量</div>
-                    <!-- <div class="tcolumn">入库均价/总价</div> -->
                     <div class="tcolumn">销售均价</div>
                     <div class="tcolumn">销售总额</div>
                     <div class="tcolumn">更新日期</div>
@@ -88,11 +108,10 @@
                     </div>
                     <div class="tcolumn">
                       <div>
-                        <!-- <span style="color:#1a95ff">{{itemChild.sell_avg_price}}</span>元 / -->
                         <span style="color:#01B48C">{{itemChild.sell_total_price}}</span>元
                       </div>
                     </div>
-                    <div class="tcolumn">{{itemChild.update_time.slice(0,10)}}</div>
+                    <div class="tcolumn">{{$getTime(itemChild.update_time)}}</div>
                     <div class="tcolumn fuck"
                       style="flex:1.3;justify-content: space-around;">
                       <span class="btn noBorder self"
@@ -259,6 +278,264 @@
                 class="once ok"
                 @click="saveLog">保存</span>
             </div>
+          </div> -->
+          <div class="tableCtnLv2">
+            <div class="tb_header">
+              <div class="tb_row middle">产品编号</div>
+              <div class="tb_row">产品名称/款号</div>
+              <div class="tb_row middle">产品图片</div>
+              <div class="tb_row">总库存数量(件)</div>
+              <div class="tb_row">总销售数量(件)</div>
+              <div class="tb_row">销售均价(元)</div>
+              <div class="tb_row">总销售总额(元)</div>
+              <div class="tb_row middle">更新日期</div>
+              <div class="tb_row middle"
+                style="flex:1.5;">操作</div>
+            </div>
+            <template v-for="itemPro in productList">
+              <div class="tb_content"
+                style="cursor: pointer;"
+                :key="itemPro.id"
+                @click="showOnly(itemPro.id)">
+                <div class="tb_row middle">{{itemPro.product_code}}</div>
+                <div class="tb_row tb_col"
+                  style="align-items:flex-start">
+                  <span style="color:#1a95ff">{{itemPro.name}}</span>
+                  <span>{{itemPro.style_code}}</span>
+                </div>
+                <div class="tb_row middle">
+                  <zh-img-list :list="itemPro.image"></zh-img-list>
+                </div>
+                <div class="tb_row"
+                  style="font-weight:bolder;font-size:16px">{{itemPro.total_number}}</div>
+                <div class="tb_row">{{itemPro.sell_total_number || 0}}</div>
+                <div class="tb_row"
+                  style="color:#1a95ff">{{itemPro.sell_avg_price || 0}}</div>
+                <div class="tb_row"
+                  style="color:#01B48C">{{itemPro.sell_total_price || 0}}</div>
+                <div class="tb_row middle">{{itemPro.updated_time}}</div>
+                <div class="tb_row middle"
+                  style="flex:1.5;">
+                  <span class="tb_handle_btn blue"
+                    @click.stop="addPro(itemPro.id,'',1)">入库</span>
+                  <span class="tb_handle_btn blue"
+                    @click.stop="addPro(itemPro.id,'',2)">出库</span>
+                  <span class="tb_handle_btn orange"
+                    @click.stop="goUpdatePro(itemPro)">修改</span>
+                  <span class="tb_handle_btn red"
+                    @click="deleteProReal(itemPro.id)">删除</span>
+                </div>
+              </div>
+              <div class="collapse_item"
+                :key="`transition-${itemPro.id}`">
+                <el-collapse-transition>
+                  <div v-if="itemPro.show">
+                    <div class="tableTopBtnCtn">
+                      <div class="btn noBorder"
+                        @click="addProForBatch(itemPro,1)">批量入库</div>
+                      <div class="btn noBorder"
+                        @click="addProForBatch(itemPro,2)">批量出库</div>
+                    </div>
+                    <div class="tableCtnLv2">
+                      <div class="tb_header">
+                        <span class="tb_row max40">
+                          <el-checkbox v-model="itemPro.checkedAll"
+                            @change="(e)=>{
+                              itemPro.size_info.forEach(itemS=>itemS.checked = e)
+                              $forceUpdate()
+                              }" />
+                        </span>
+                        <span class="tb_row">尺码配色</span>
+                        <span class="tb_row">当前库存数量(件)</span>
+                        <span class="tb_row">入库均价(元)</span>
+                        <span class="tb_row">入库总价(元)</span>
+                        <span class="tb_row">已出库数量(件)</span>
+                        <span class="tb_row">出库均价(元)</span>
+                        <span class="tb_row">出库总价(元)</span>
+                        <span class="tb_row middle">操作</span>
+                      </div>
+                      <div class="tb_content"
+                        v-for="(itemSC,indexSC) in itemPro.size_info"
+                        :key="indexSC">
+                        <span class="tb_row max40">
+                          <el-checkbox v-model="itemSC.checked"
+                            @change="$forceUpdate()" />
+                        </span>
+                        <span class="tb_row">{{`${itemSC.size_name}/${itemSC.color_name}`}}</span>
+                        <span class="tb_row"
+                          style="font-weight:bolder;font-size:16px">{{itemSC.total_number}}</span>
+                        <span class="tb_row">{{itemSC.avg_price}}</span>
+                        <span class="tb_row">{{itemSC.total_price}}</span>
+                        <span class="tb_row">{{itemSC.sell_number}}</span>
+                        <span class="tb_row">{{itemSC.sell_avg_price}}</span>
+                        <span class="tb_row">{{itemSC.sell_total_price}}</span>
+                        <span class="tb_row middle">
+                          <span class="tb_handle_btn blue"
+                            @click="addPro(itemPro.id,itemSC.id,1)">入库</span>
+                          <span class="tb_handle_btn blue"
+                            @click="addPro(itemPro.id,itemSC.id,2)">出库</span>
+                          <span class="tb_handle_btn red"
+                            @click="deleteSizeColor(itemSC.id)">删除</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </el-collapse-transition>
+
+              </div>
+            </template>
+            <div class="createModule"
+              v-for="(item,index) in productData"
+              :key="index">
+              <div class="deleteIconBtn"
+                @click="deletePro(index)">
+                <i class="el-icon-close"></i>
+              </div>
+              <div class="rowCtn">
+                <div class="colCtn">
+                  <div class="label">
+                    <span class="text">选择产品</span>
+                    <span class="explanation">(必填)</span>
+                  </div>
+                  <div class="content">
+                    <el-select placeholder="请选择产品编号"
+                      filterable
+                      remote
+                      :remote-method="searchProList"
+                      @change="getColorSize"
+                      v-model="item.id">
+                      <el-option v-for="item in proSelectList"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id"></el-option>
+                    </el-select>
+                  </div>
+                </div>
+                <div class="colCtn">
+                  <div class="label">
+                    <span class="text">操作类型</span>
+                    <span class="explanation">(必填)</span>
+                  </div>
+                  <div class="content">
+                    <el-select placeholder="请选择操作类型"
+                      v-model="item.type">
+                      <el-option :value='1'
+                        label="入库"></el-option>
+                      <el-option :value='2'
+                        label="出库"></el-option>
+                    </el-select>
+                  </div>
+                </div>
+                <div class="colCtn">
+                  <div class="label">
+                    <span class="text">出入库单位</span>
+                    <span class="explanation">(选填)</span>
+                  </div>
+                  <div class="content">
+                    <el-input placeholder="请输入出入库单位名称"
+                      v-model="item.client"></el-input>
+                  </div>
+                </div>
+              </div>
+              <div class="rowCtn"
+                v-for="(itemChild,indexChild) in item.childrenArr"
+                :key="indexChild">
+                <div class="colCtn">
+                  <div class="label"
+                    v-if="indexChild===0">
+                    <span class="text">尺码颜色</span>
+                    <span class="explanation">(必填)</span>
+                  </div>
+                  <div class="content">
+                    <el-select placeholder="请选择尺码颜色"
+                      v-model="itemChild.colorSize">
+                      <el-option v-for="(itemSize,indexSize) in getColorSize(item.id)"
+                        :label="itemSize.size_name + '/' + itemSize.color_name"
+                        :value="itemSize.id"
+                        :key="indexSize"></el-option>
+                    </el-select>
+                  </div>
+                </div>
+                <div class="colCtn">
+                  <div class="label"
+                    v-if="indexChild===0">
+                    <span class="text">出/入库数量</span>
+                    <span class="explanation">(必填)</span>
+                  </div>
+                  <div class="content">
+                    <el-input placeholder="请输入数字"
+                      v-model="itemChild.number"></el-input>
+                  </div>
+                </div>
+                <div class="colCtn">
+                  <div class="label"
+                    v-if="indexChild===0">
+                    <span class="text">产品价格</span>
+                    <span class="explanation">(选填)</span>
+                  </div>
+                  <div class="content">
+                    <el-input placeholder="请输入价格"
+                      v-model="itemChild.price"></el-input>
+                  </div>
+                  <div class="editBtn addBtn"
+                    v-if="indexChild===0"
+                    @click="addChild(item.childrenArr)">添加</div>
+                  <div class="editBtn deleteBtn"
+                    v-if="indexChild>0"
+                    @click="deleteChild(item.childrenArr,indexChild)">删除</div>
+                </div>
+              </div>
+              <div class="rowCtn">
+                <div class="colCtn">
+                  <div class="label">
+                    <span class="text">请选择仓库/货架</span>
+                    <span class="explanation">(必填)</span>
+                  </div>
+                  <div class="content">
+                    <el-select placeholder="请选择仓库/货架"
+                      v-model="item.store_id">
+                      <el-option v-for="item in stockArr"
+                        :key="item.id"
+                        :value="item.id"
+                        :label="item.name"></el-option>
+                    </el-select>
+                  </div>
+                </div>
+                <div class="colCtn">
+                  <div class="label">
+                    <span class="text">产品总价</span>
+                    <span class="explanation">(必填)</span>
+                  </div>
+                  <div class="content">
+                    <span class="spanInput"> {{totalPrice(item.childrenArr)}}</span>
+                  </div>
+                </div>
+                <div class="colCtn">
+                  <div class="label">
+                    <span class="text">备注信息</span>
+                    <span class="explanation">(选填)</span>
+                  </div>
+                  <div class="content">
+                    <el-input placeholder="备注信息"
+                      v-model="value"></el-input>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="addRows">
+              <span v-if="!addProFlag"
+                class="once gray"
+                @click="addPro()">添加出入库</span>
+              <span v-if="addProFlag"
+                class="once cancle"
+                @click="cancle">取消</span>
+              <span v-if="addProFlag"
+                class="once normal"
+                @click="addPro">添加出入库</span>
+              <span v-if="addProFlag"
+                class="once ok"
+                @click="saveLog">保存</span>
+            </div>
           </div>
         </div>
         <div class="pageCtn">
@@ -272,7 +549,8 @@
         </div>
       </div>
     </div>
-    <div class="module">
+    <div class="module"
+      v-else>
       <div class="titleCtn">
         <span class="title">仓库日志</span>
         <div class="btn btnBlue"
@@ -334,10 +612,8 @@
                   <div class="tcolumn">总价</div>
                   <div class="tcolumn">操作类型</div>
                   <div class="tcolumn">出入库单位</div>
-                  <div class="tcolumn">备注</div>
-                  <div class="tcolumn">操作人</div>
                   <div class="tcolumn">操作时间</div>
-                  <div class="tcolumn">操作</div>
+                  <div class="tcolumn center">操作</div>
                 </div>
               </div>
               <div class="tbody">
@@ -363,12 +639,19 @@
                   <div class="tcolumn"
                     :style="item.action_type===1 ? 'color:#1a95ff':item.action_type===2?'color:rgb(1, 180, 140)':item.action_type===3?'color:rgb(245, 34, 45)':''">{{actionArr[item.action_type]}}</div>
                   <div class="tcolumn">{{item.client_name}}</div>
-                  <div class="tcolumn">{{item.desc}}</div>
-                  <div class="tcolumn">{{item.user_name}}</div>
-                  <div class="tcolumn">{{item.created_at.slice(0,10)}}</div>
-                  <div class="tcolumn">
+                  <div class="tcolumn">{{$getTime(item.created_at)}}</div>
+                  <div class="tcolumn center"
+                    style="flex-direction: row;align-items: center;justify-content: space-around;">
                     <span style="color:#F5222D;cursor:pointer"
                       @click="deleteLog(item.id)">删除</span>
+                    <el-popover placement="top-start"
+                      width="200"
+                      trigger="click">
+                      <div>操作人：{{item.user_name}}</div>
+                      <div>备注：{{item.desc}}</div>
+                      <span slot="reference"
+                        style="color:#1A95FF;cursor:pointer">详情</span>
+                    </el-popover>
                   </div>
                 </div>
               </div>
@@ -395,7 +678,8 @@
           <i class="el-icon-close"
             @click="createProFlag=false"></i>
         </div>
-        <div class="content">
+        <div class="content"
+          style="padding-right:100px">
           <div class="row">
             <div class="label">产品名称：</div>
             <div class="info">
@@ -430,11 +714,15 @@
               <el-input v-model="itemChild.number"
                 placeholder="数量"></el-input>
             </div>
+            <div class="editBtn blue"
+              @click="productInfo.childrenArr.push($clone(itemChild))">复制</div>
             <div v-if="indexChild===0"
               class="editBtn blue"
+              style="right: calc(-2em - 48px);"
               @click="createChild(productInfo.childrenArr)">添加</div>
             <div v-if="indexChild>0"
               class="editBtn red"
+              style="right: calc(-2em - 48px);"
               @click="deleteChild(productInfo.childrenArr,indexChild)">删除</div>
           </div>
           <div class="row">
@@ -498,7 +786,8 @@
           <i class="el-icon-close"
             @click="updateProFlag=false"></i>
         </div>
-        <div class="content">
+        <div class="content"
+          style="padding-right:100px">
           <div class="row">
             <div class="label">产品名称：</div>
             <div class="info">
@@ -520,22 +809,28 @@
             <div class="info flex">
               <el-autocomplete style="margin-right:12px"
                 v-model="itemChild.size"
+                :disabled='itemChild.disabled'
                 :fetch-suggestions="querySearchSize"
                 placeholder="尺码"></el-autocomplete>
               <el-autocomplete style="margin-right:12px"
                 v-model="itemChild.color"
+                :disabled='itemChild.disabled'
                 :fetch-suggestions="querySearchColor"
                 placeholder="颜色"></el-autocomplete>
-              <el-input v-model="itemChild.price"
+              <!-- <el-input v-model="itemChild.price"
                 placeholder="单价"></el-input>
               <el-input v-model="itemChild.number"
-                disabled
-                placeholder="数量"></el-input>
+                :disabled='itemChild.disabled'
+                placeholder="数量"></el-input> -->
             </div>
+            <div class="editBtn blue"
+              @click="updateInfo.childrenArr.push({size:itemChild.size,color:itemChild.color})">复制</div>
             <div v-if="indexChild===0"
+              style="right: calc(-2em - 48px);"
               class="editBtn blue"
               @click="createChild(updateInfo.childrenArr)">添加</div>
-            <div v-if="indexChild>0"
+            <div v-if="indexChild>0 && !itemChild.disabled"
+              style="right: calc(-2em - 48px);"
               class="editBtn red"
               @click="deleteChild(updateInfo.childrenArr,indexChild)">删除</div>
           </div>
@@ -685,10 +980,22 @@ export default {
       actionArr: ['', '入库', '销售/出库'],
       localSizeArr: [],
       localColorArr: [],
-      localClientArr: []
+      localClientArr: [],
+      // 2020-08-06-16-34新增
+      showProList: true
     }
   },
   methods: {
+    showOnly (id) {
+      this.productList.forEach(itemF => {
+        if (itemF.id === id) {
+          itemF.show = !itemF.show
+        } else {
+          itemF.show = false
+        }
+      })
+      this.$forceUpdate()
+    },
     querySearchClient (queryString, cb) {
       cb(queryString ? this.addValue(this.localClientArr.filter(this.createFilter(queryString))) : this.addValue(this.localClientArr))
     },
@@ -753,7 +1060,7 @@ export default {
         item.product_name = item.product_info.name
         item.style_code = item.product_info.style_code
         item.size_color = item.size_info.size_name + '/' + item.size_info.color_name
-        item.time = item.created_at.slice(0, 10)
+        item.time = this.$getTime(item.created_at)
       })
       if (data.length === 0) {
         this.$message.error('请选择需要导出的日志')
@@ -821,7 +1128,23 @@ export default {
         page: this.pagePro,
         limit: 5
       }).then((res) => {
-        this.productList = res.data.data
+        this.productList = res.data.data.map(itemM => {
+          itemM.total_number = this.$toFixed(itemM.size_info.map(itemS => (+itemS.total_number || 0)).reduce((a, b) => {
+            return a + b
+          }, 0))
+          itemM.sell_total_number = this.$toFixed(itemM.size_info.map(itemS => (+itemS.sell_number || 0)).reduce((a, b) => {
+            return a + b
+          }, 0))
+          itemM.sell_total_price = this.$toFixed(itemM.size_info.map(itemS => (+itemS.sell_total_price || 0)).reduce((a, b) => {
+            return a + b
+          }, 0))
+          itemM.sell_avg_price = this.$toFixed(itemM.sell_total_price / itemM.sell_total_number)
+          itemM.updated_time = this.$getTime(itemM.size_info.map(itemS => (itemS.update_time ? new Date(itemS.update_time).getTime() : 0)).sort((a, b) => {
+            return a - b
+          })[0])
+          itemM.show = false
+          return itemM
+        })
         this.proSelectList = res.data.data
         this.totalPro = res.data.meta.total
         this.loading = false
@@ -864,6 +1187,25 @@ export default {
         }]
       })
     },
+    addProForBatch (item, type) {
+      if (!this.addProFlag) {
+        this.addProFlag = true
+      }
+      this.productData.push({
+        id: Number(item.id) || '',
+        type: type || '',
+        client: '',
+        store_id: '',
+        desc: '',
+        childrenArr: item.size_info.filter(itemF => itemF.checked).map(itemM => {
+          return {
+            colorSize: Number(itemM.id) || '',
+            number: '',
+            price: ''
+          }
+        })
+      })
+    },
     addChild (item) {
       item.push({
         colorSize: '',
@@ -896,7 +1238,6 @@ export default {
         product.deleteSize({
           id: id
         }).then((res) => {
-          console.log(res)
           if (res.data.status) {
             this.$message({
               type: 'success',
@@ -1052,6 +1393,7 @@ export default {
         type: item.style_code,
         childrenArr: item.size_info.map((itemChild) => {
           return {
+            disabled: true,
             color: itemChild.color_name,
             size: itemChild.size_name,
             number: itemChild.total_number,
@@ -1079,7 +1421,6 @@ export default {
         product.delete({
           id: id
         }).then((res) => {
-          console.log(res)
           if (res.data.status) {
             this.$message({
               type: 'success',
@@ -1130,7 +1471,6 @@ export default {
         return
       }
       const data = this.updateInfo
-      console.log(data)
       const formData = {
         id: data.id,
         name: data.name,
@@ -1141,12 +1481,12 @@ export default {
         style_code: data.type,
         store_id: data.store_id,
         client_name: data.client_name,
-        size_info: data.childrenArr.map((item) => {
+        size_info: data.childrenArr.filter(itemF => !itemF.disabled).map((item) => {
           return {
             size_name: item.size,
             color_name: item.color,
-            number: item.number,
-            price: item.price
+            number: 0,
+            price: 0
           }
         })
       }
@@ -1304,7 +1644,23 @@ export default {
     ]).then((res) => {
       this.postData.token = res[0].data.data
       this.stockArr = res[1].data.data
-      this.productList = res[2].data.data
+      this.productList = res[2].data.data.map(itemM => {
+        itemM.total_number = this.$toFixed(itemM.size_info.map(itemS => (+itemS.total_number || 0)).reduce((a, b) => {
+          return a + b
+        }, 0))
+        itemM.sell_total_number = this.$toFixed(itemM.size_info.map(itemS => (+itemS.sell_number || 0)).reduce((a, b) => {
+          return a + b
+        }, 0))
+        itemM.sell_total_price = this.$toFixed(itemM.size_info.map(itemS => (+itemS.sell_total_price || 0)).reduce((a, b) => {
+          return a + b
+        }, 0))
+        itemM.sell_avg_price = this.$toFixed(itemM.sell_total_price / itemM.sell_total_number)
+        itemM.updated_time = this.$getTime(itemM.size_info.map(itemS => (itemS.update_time ? new Date(itemS.update_time).getTime() : 0)).sort((a, b) => {
+          return a - b
+        })[0])
+        itemM.show = false
+        return itemM
+      })
       this.proSelectList = res[2].data.data
       this.totalPro = res[2].data.meta.total
       this.storeLogList = res[3].data.data

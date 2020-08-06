@@ -756,108 +756,6 @@
         color: #1a95ff;
       }
     }
-    .createModule{
-      position: relative;
-      background: #f8f8f8;
-      padding: 16px 0;
-      margin: 16px 0;
-      .deleteIcon{
-        position: absolute;
-        top: 0;
-        right: 32px;
-        transform: translateY(-50%);
-        display: block;
-        font-size: @fontBig;
-        background: #fff;
-        border: 1px solid @red;
-        color: @red;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-      .rowCtn{
-        padding: 0 32px;
-        margin: 18px 0;
-        display: flex;
-        justify-content: flex-start;
-        .colCtn{
-          flex:1;
-          margin-right: 72px;
-          box-sizing: border-box;
-          position: relative;
-          &.flex2{
-            max-width: 579px;
-          }
-          &.flex3{
-            max-width: 362px;
-          }
-          &.flex4{
-            max-width: 253.5px;
-          }
-          .label{
-            display: block;
-            height: 38px;
-            line-height: 38px;
-            font-size: @fontMiddle;
-            .text{
-              color: @font85;
-            }
-            .explanation{
-              margin-left: 5px;
-              color: @font25;
-            }
-          }
-          .content{
-            display: block;
-            height:32px;
-            .uploadBtn{
-              font-size: 14px;
-              color: @font65;
-              border:1px solid #D9D9D9;
-              padding: 4px 12px;
-              border-radius: 4px;
-            }
-            &.autoHeight{
-              height: auto;
-            }
-          }
-          .editBtn{
-            position: absolute;
-            line-height: 32px;
-            cursor: pointer;
-            left: 100%;
-            bottom: 0;
-            white-space: nowrap;
-            margin-left: 24px;
-            font-size: @fontMiddle;
-            &.addBtn{
-              color: @blue;
-            }
-            &.deleteBtn{
-              color: @red;
-            }
-          }
-        }
-      }
-      .text{
-        color: @font65;
-      }
-      .deleteIconBtn{
-        position: absolute;
-        right: 12px;
-        top: 12px;
-        width: 22px;
-        height: 22px;
-        line-height: 22px;
-        text-align: center;
-        background: @orange;
-        color: #fff;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-      .flex3{
-        max-width: 319.3px;
-      }
-    }
   }
   // 表格下面的添加行
   .addRows{
@@ -1158,6 +1056,109 @@
     }
     .tb_input{
       width: calc(100% - 32px);
+    }
+  }
+  // 表格内添加编辑模块
+  .createModule{
+    position: relative;
+    background: #f8f8f8;
+    padding: 16px 0;
+    margin: 16px 0;
+    .deleteIcon{
+      position: absolute;
+      top: 0;
+      right: 32px;
+      transform: translateY(-50%);
+      display: block;
+      font-size: @fontBig;
+      background: #fff;
+      border: 1px solid @red;
+      color: @red;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .rowCtn{
+      padding: 0 32px;
+      margin: 18px 0;
+      display: flex;
+      justify-content: flex-start;
+      .colCtn{
+        flex:1;
+        margin-right: 72px;
+        box-sizing: border-box;
+        position: relative;
+        &.flex2{
+          max-width: 579px;
+        }
+        &.flex3{
+          max-width: 362px;
+        }
+        &.flex4{
+          max-width: 253.5px;
+        }
+        .label{
+          display: block;
+          height: 38px;
+          line-height: 38px;
+          font-size: @fontMiddle;
+          .text{
+            color: @font85;
+          }
+          .explanation{
+            margin-left: 5px;
+            color: @font25;
+          }
+        }
+        .content{
+          display: block;
+          height:32px;
+          .uploadBtn{
+            font-size: 14px;
+            color: @font65;
+            border:1px solid #D9D9D9;
+            padding: 4px 12px;
+            border-radius: 4px;
+          }
+          &.autoHeight{
+            height: auto;
+          }
+        }
+        .editBtn{
+          position: absolute;
+          line-height: 32px;
+          cursor: pointer;
+          left: 100%;
+          bottom: 0;
+          white-space: nowrap;
+          margin-left: 24px;
+          font-size: @fontMiddle;
+          &.addBtn{
+            color: @blue;
+          }
+          &.deleteBtn{
+            color: @red;
+          }
+        }
+      }
+    }
+    .text{
+      color: @font65;
+    }
+    .deleteIconBtn{
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 22px;
+      height: 22px;
+      line-height: 22px;
+      text-align: center;
+      background: @orange;
+      color: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .flex3{
+      max-width: 319.3px;
     }
   }
 }

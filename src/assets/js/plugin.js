@@ -170,6 +170,26 @@ const plugin = {
       throw new TypeError('An unknown error occurred from the mergeData function, and the parameter "data" expects to get an "array" but gets an "' + type + '"')
     }
     return newData
+  },
+  /************************************
+   *data:需要处理的数据
+   *type:Number|String
+   *return:Number
+   ***********************************/
+  toFixedAuto: (number) => {
+    if (isNaN(Number(number))) {
+      return NaN
+    }
+    if (!Number(number) && Number(number) !== 0) {
+      throw new TypeError('Expect to get a number')
+    }
+    if (number % 1 === 0) {
+      return parseInt(number)
+    } else if (number % 0.1 === 0) {
+      return Number(Number(number).toFixed(1))
+    } else if (number % 0.01 === 0 || number % 0.01 !== 0) {
+      return Number(Number(number).toFixed(2))
+    }
   }
 }
 
@@ -179,5 +199,6 @@ export default {
     Vue.prototype.$getDataType = plugin.getDataType
     Vue.prototype.$clone = plugin.cloneData
     Vue.prototype.$mergeData = plugin.mergeData
+    Vue.prototype.$toFixed = plugin.toFixedAuto
   }
 }

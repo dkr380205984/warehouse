@@ -2,6 +2,8 @@ import http from './http.js'
 const baseUrl = '/api'
 // 登录
 const login = (params) => http.post(`${baseUrl}/auth/login`, params, 'application/json')
+// 修改账户密码
+const changeUserPasd = (params) => http.post(`${baseUrl}/user/edit/pass`, params, 'application/json')
 // 注销
 const logout = (params) => http.post(`${baseUrl}/auth/logout`, params, 'application/json')
 // token
@@ -52,6 +54,7 @@ const userManage = {
   create: (params) => http.post(`${baseUrl}/user/save`, params, 'application/json')
 }
 export {
+  changeUserPasd,
   userManage,
   getAuthorization,
   login,

@@ -49,6 +49,9 @@
             style="margin-right:20px"
             @click="addUserFlag = true">新增帐号</div>
           <div class="logout"
+            style="margin-right:20px"
+            @click="changePasdFlag = true">修改密码</div>
+          <div class="logout"
             @click="logOut">登出系统</div>
         </div>
       </div>
@@ -95,11 +98,51 @@
         </div>
       </div>
     </div>
+    <div class="popup"
+      v-if="changePasdFlag">
+      <div class="main"
+        style="width:500px">
+        <div class="title">
+          <span class="text">修改密码</span>
+          <span class="el-icon-close"
+            @click="changePasdFlag = false"></span>
+        </div>
+        <div class="content">
+          <div class="row">
+            <span class="label">原密码：</span>
+            <span class="info">
+              <zh-input placeholder="请输入原密码"
+                v-model="oldPasd" />
+            </span>
+          </div>
+          <div class="row">
+            <span class="label">新密码：</span>
+            <span class="info">
+              <zh-input placeholder="请输入新密码"
+                v-model="firstPasd" />
+            </span>
+          </div>
+          <div class="row">
+            <span class="label">确认密码：</span>
+            <span class="info">
+              <zh-input placeholder="请再次输入新密码"
+                v-model="lastPasd" />
+            </span>
+          </div>
+        </div>
+        <div class="opr">
+          <div class="btn btnGray"
+            @click="changePasdFlag = false">取消</div>
+          <div class="btn btnBlue"
+            @click="changePasdCommit">修改</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { logout, userManage } from '@/assets/js/api.js'
+import { logout, userManage, changeUserPasd } from '@/assets/js/api.js'
 export default {
   data () {
     return {
@@ -108,10 +151,38 @@ export default {
       name: '',
       addUserFlag: false,
       companyName: window.sessionStorage.getItem('company_name'),
-      logo: require('@/assets/image/index/logo.png')
+      logo: require('@/assets/image/index/logo.png'),
+      // 修改密码数据
+      changePasdFlag: false,
+      oldPasd: '',
+      firstPasd: '',
+      lastPasd: ''
     }
   },
   methods: {
+    changePasdCommit () {
+      if (!this.oldPasd) {
+        this.$message.error('请输入原密码')
+        return
+      }
+      if (!this.firstPasd || !this.lastPasd) {
+        this.$message.error('请输入新密码')
+        return
+      }
+      if (this.firstPasd !== this.lastPasd) {
+        this.$message.warning('请确认输入的密码一致')
+      } else {
+        changeUserPasd({
+          old_pass: this.oldPasd,
+          new_pass: this.firstPasd
+        }).then(res => {
+          if (res.data.status !== false) {
+            this.$message.success('修改密码成功，请重新登录')
+            this.$router.push('/login')
+          }
+        })
+      }
+    },
     logOut () {
       logout().then((res) => {
         if (res.data.status) {
