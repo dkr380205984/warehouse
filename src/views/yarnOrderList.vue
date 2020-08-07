@@ -2,9 +2,36 @@
   <div id="yarnOrderList"
     class="contentMain"
     v-loading="loading">
+    <div class="listCutCtn">
+      <div class="cut_item active">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-wuliaodinggou"></use>
+        </svg>
+        <span class="name">{{type === '1' ? '原' : '辅'}}料采购列表</span>
+      </div>
+      <div class="cut_item"
+        @click="$router.push(`/yarnStoreDetail/${type}/1`)">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-chanpin"></use>
+        </svg>
+        <span class="name">{{type === '1' ? '原' : '辅'}}料库存列表</span>
+      </div>
+      <div class="cut_item"
+        @click="$router.push(`/yarnStoreDetail/${type}/2`)">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-jincangdan"></use>
+        </svg>
+        <span class="name">{{type === '1' ? '原' : '辅'}}料库存日志</span>
+      </div>
+    </div>
     <div class="module">
-      <div class="titleCtn">
+      <div class="titleCtn rightBtn">
         <span class="title">采购单列表</span>
+        <span class="btn btnWhiteBlue"
+          @click="$router.push(type === '1' ? '/yarnOrderCreate' : '/materialOrderCreate')">添加{{type === '1' ? '原' : '辅'}}料采购单</span>
       </div>
       <div class="listCtn">
         <div class="filterCtn">
@@ -25,7 +52,7 @@
               @change="changeRouter(1)"
               placeholder="搜索公司名称">
             </el-input>
-            <el-select class="inputs"
+            <!-- <el-select class="inputs"
               v-model="type"
               @change="changeRouter(1)"
               placeholder="采购单类型">
@@ -35,7 +62,7 @@
                 label="原料采购单"></el-option>
               <el-option value="2"
                 label="辅料采购单"></el-option>
-            </el-select>
+            </el-select> -->
             <div class="btn btnGray"
               style="margin-left:0"
               @click="reset">重置</div>
@@ -294,7 +321,7 @@
         </div>
         <div class="pageCtn">
           <el-pagination background
-            :page-size="5"
+            :page-size="10"
             layout="prev, pager, next"
             :total="total"
             :current-page.sync="page">
@@ -318,7 +345,7 @@ export default {
       orderCode: '',
       clientName: '',
       yarnName: '',
-      type: '0',
+      type: '1',
       list: []
     }
   },
@@ -333,7 +360,7 @@ export default {
     totalWeight (matArr) {
       return matArr.reduce((total, current) => {
         return total + Number(current.weight)
-      }, 0)
+      }, 0).toFixed(2)
     },
     totalInWeight (logArr) {
       return logArr.reduce((total, current) => {
@@ -341,7 +368,7 @@ export default {
           return total + Number(current.weight)
         }
         return total
-      }, 0)
+      }, 0).toFixed(2)
     },
     totalOutWeight (logArr) {
       return logArr.reduce((total, current) => {
@@ -349,7 +376,7 @@ export default {
           return total + Number(current.weight)
         }
         return total
-      }, 0)
+      }, 0).toFixed(2)
     }
   },
   watch: {
@@ -375,7 +402,6 @@ export default {
       this.orderCode = ''
       this.yarnName = ''
       this.clientName = ''
-      this.type = '0'
       this.changeRouter()
     },
     getList () {
@@ -386,7 +412,7 @@ export default {
         client_name: this.clientName,
         page: this.page,
         order_type: Number(this.type),
-        limit: 5
+        limit: 10
       }).then((res) => {
         this.list = res.data.data
         this.list.forEach((item) => {

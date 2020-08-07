@@ -28,12 +28,12 @@
               </div>
             </span>
           </div>
-          <!-- <div class="right">
+          <div class="right">
             <span class="qrCode_box">
-              <img :src="qrCodeUrl"
-              alt="二维码">
+              <img :src="(itemT.image && itemT.image[0] && itemT.image[0].image_url) || defaultImg"
+                alt="图片" />
             </span>
-          </div> -->
+          </div>
         </div>
         <div class="print_body">
           <div class="print_row"
@@ -113,6 +113,7 @@ export default {
     return {
       title: window.sessionStorage.getItem('company_name') + '成衣',
       user_name: window.sessionStorage.getItem('user_name'),
+      defaultImg: require('@/assets/image/index/noPic.jpg'),
       client_name: '',
       allData: []
     }
@@ -131,6 +132,7 @@ export default {
               number: item.number,
               // price: item.price,
               product_id: item.product_info.id,
+              image: item.product_info.images,
               product_name: item.product_info.name,
               product_code: item.product_info.product_code,
               style_code: item.product_info.style_code,
@@ -143,6 +145,7 @@ export default {
             mainRule: ['action_type', 'client_name', 'created_time', 'product_id'],
             otherRule: [
               { name: 'product_code' },
+              { name: 'image' },
               { name: 'product_name' },
               { name: 'style_code' }
             ],
@@ -176,6 +179,7 @@ export default {
               client_name: itemPro.client_name,
               created_time: itemPro.created_time,
               product_id: itemPro.product_id,
+              image: itemPro.image,
               product_code: itemPro.product_code,
               product_name: itemPro.product_name,
               style_code: itemPro.style_code,

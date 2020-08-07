@@ -36,7 +36,7 @@ const routes = [
       name: '采购单详情',
       component: () => import('../views/yarnOrderDetail.vue')
     }, {
-      path: '/yarnStoreDetail',
+      path: '/yarnStoreDetail/:type/:isLog',
       name: '物料出入库',
       component: () => import('../views/yarnStoreDetail.vue')
     }, {

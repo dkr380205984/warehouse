@@ -381,7 +381,6 @@
                     </div>
                   </div>
                 </el-collapse-transition>
-
               </div>
             </template>
             <div class="createModule"
@@ -522,7 +521,8 @@
                 </div>
               </div>
             </div>
-            <div class="addRows">
+            <div class="addRows"
+              id="editCtn">
               <span v-if="!addProFlag"
                 class="once gray"
                 @click="addPro()">添加出入库</span>
@@ -540,7 +540,7 @@
         </div>
         <div class="pageCtn">
           <el-pagination background
-            :page-size="5"
+            :page-size="10"
             layout="prev, pager, next"
             :total="totalPro"
             :current-page.sync="pagePro"
@@ -1126,7 +1126,7 @@ export default {
         start_time: this.proDate,
         end_time: y + '-' + m + '-' + d,
         page: this.pagePro,
-        limit: 5
+        limit: 10
       }).then((res) => {
         this.productList = res.data.data.map(itemM => {
           itemM.total_number = this.$toFixed(itemM.size_info.map(itemS => (+itemS.total_number || 0)).reduce((a, b) => {
@@ -1186,6 +1186,7 @@ export default {
           price: ''
         }]
       })
+      this.$goElView('editCtn')
     },
     addProForBatch (item, type) {
       if (!this.addProFlag) {
@@ -1205,6 +1206,7 @@ export default {
           }
         })
       })
+      this.$goElView('editCtn')
     },
     addChild (item) {
       item.push({

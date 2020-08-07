@@ -190,6 +190,23 @@ const plugin = {
     } else if (number % 0.01 === 0 || number % 0.01 !== 0) {
       return Number(Number(number).toFixed(2))
     }
+  },
+  /************************************
+   *el:到达其视图的id
+   *type:String
+   ***********************************/
+  goElView: (el) => {
+    if (!el) {
+      throw new TypeError('请传入element的"id"')
+    }
+    let ele = document.getElementById(el)
+    setTimeout(() => {
+      if (ele) {
+        ele.scrollIntoView(true)
+      } else {
+        return false
+      }
+    }, 100)
   }
 }
 
@@ -200,5 +217,6 @@ export default {
     Vue.prototype.$clone = plugin.cloneData
     Vue.prototype.$mergeData = plugin.mergeData
     Vue.prototype.$toFixed = plugin.toFixedAuto
+    Vue.prototype.$goElView = plugin.goElView
   }
 }

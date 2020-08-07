@@ -14,32 +14,44 @@
               <img class="icon"
                 :src=" require('@/assets/image/index/产品.png')" />
               <span class="text"
-                @click="$router.push('/proStoreDetail')">产品出入库</span>
+                @click="$router.push('/proStoreDetail')">产品进销存</span>
             </div>
             <div class="menu">
+              <img class="icon"
+                :src=" require('@/assets/image/index/采购单.png')" />
+              <span class="text"
+                @click="$router.push('/yarnOrderList/page=1&&order_code=&&material_name=&&client_name=&&type=1')">原料出入库</span>
+            </div>
+            <div class="menu">
+              <img class="icon"
+                :src=" require('@/assets/image/index/采购单.png')" />
+              <span class="text"
+                @click="$router.push('/yarnOrderList/page=1&&order_code=&&material_name=&&client_name=&&type=2')">辅料出入库</span>
+            </div>
+            <!-- <div class="menu">
               <img class="icon"
                 :src=" require('@/assets/image/index/采购单.png')" />
               <span class="text"
                 @click="$router.push('/yarnOrderCreate')">添加原料采购单</span>
-            </div>
-            <div class="menu">
+            </div> -->
+            <!-- <div class="menu">
               <img class="icon"
                 :src=" require('@/assets/image/index/采购单.png')" />
               <span class="text"
                 @click="$router.push('/materialOrderCreate')">添加辅料采购单</span>
-            </div>
-            <div class="menu">
+            </div> -->
+            <!-- <div class="menu">
               <img class="icon"
                 :src=" require('@/assets/image/index/采购单列表.png')" />
               <span class="text"
                 @click="$router.push('/yarnOrderList/page=1')">采购单列表</span>
-            </div>
-            <div class="menu">
+            </div> -->
+            <!-- <div class="menu">
               <img class="icon"
                 :src=" require('@/assets/image/index/库存.png')" />
               <span class="text"
                 @click="$router.push('/yarnStoreDetail')">物料库存</span>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="rightCtn">
