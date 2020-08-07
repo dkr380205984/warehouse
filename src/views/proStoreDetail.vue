@@ -346,7 +346,8 @@
                               }" />
                         </span>
                         <span class="tb_row">尺码配色</span>
-                        <span class="tb_row">当前库存数量(件)</span>
+                        <span class="tb_row right">当前库存数量(件)</span>
+                        <span class="tb_row max40"></span>
                         <span class="tb_row">入库均价(元)</span>
                         <span class="tb_row">入库总价(元)</span>
                         <span class="tb_row">已出库数量(件)</span>
@@ -362,8 +363,9 @@
                             @change="$forceUpdate()" />
                         </span>
                         <span class="tb_row">{{`${itemSC.size_name}/${itemSC.color_name}`}}</span>
-                        <span class="tb_row"
+                        <span class="tb_row right"
                           style="font-weight:bolder;font-size:16px">{{itemSC.total_number}}</span>
+                        <span class="tb_row max40"></span>
                         <span class="tb_row">{{itemSC.avg_price}}</span>
                         <span class="tb_row">{{itemSC.total_price}}</span>
                         <span class="tb_row">{{itemSC.sell_number}}</span>
@@ -1636,7 +1638,7 @@ export default {
         type: 1
       }),
       product.list({
-        limit: 5,
+        limit: 10,
         page: 1
       }),
       outAndIn.list({
