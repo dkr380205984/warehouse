@@ -756,6 +756,7 @@
                 action="https://upload.qiniup.com/"
                 accept="image/jpeg,image/gif,image/png,image/bmp"
                 :file-list="productInfo.image"
+                :before-remove="beforeRemove"
                 :on-success="successFile"
                 :data="postData"
                 ref="uploada"
@@ -867,6 +868,7 @@
                 :before-upload="beforeAvatarUpload"
                 :file-list="fileArrUpadate"
                 :on-success="successFileUpdate"
+                :before-remove="beforeFileRemove"
                 :data="postData"
                 ref="uploada"
                 list-type="picture">
@@ -951,7 +953,8 @@ export default {
         }],
         client_name: '',
         store_id: '',
-        image: []
+        image: [],
+        deleteImage: []
       },
       updateInfo: {
         name: '',
@@ -1274,35 +1277,59 @@ export default {
         return false
       }
     },
-    successFile (response, file, fileList) {
+    successFile (response) {
       this.productInfo.image.push('https://zhihui.tlkrzf.com/' + response.key)
     },
-    successFileUpdate (response, file, fileList) {
+    beforeRemove (file) {
+      // this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // }).then(() => {
+      this.productInfo.deleteImage.push({
+        id: file.id ? file.id : null,
+        file_name: file.response ? file.response.key : file.url.split('https://zhihui.tlkrzf.com/')[1]
+      })
+      this.$forceUpdate()
+      //   this.$message({
+      //     type: 'success',
+      //     message: '删除成功!'
+      //   })
+      // }).catch(() => {
+      //   this.$message({
+      //     type: 'info',
+      //     message: '已取消删除'
+      //   })
+      // })
+      // return false 禁用自带的删除功能
+      // return false
+    },
+    successFileUpdate (response) {
       this.addArr.push('https://zhihui.tlkrzf.com/' + response.key)
     },
-    beforeRemove (file, fileList) {
-      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.deleteArr.push({
-          id: file.id ? file.id : null,
-          file_name: file.response ? file.response.key : file.url.split('https://zhihui.tlkrzf.com/')[1]
-        })
-        this.$forceUpdate()
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
+    beforeFileRemove (file) {
+      // this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // }).then(() => {
+      this.deleteArr.push({
+        id: file.id ? file.id : null,
+        file_name: file.response ? file.response.key : file.url.split('https://zhihui.tlkrzf.com/')[1]
       })
+      this.$forceUpdate()
+      //   this.$message({
+      //     type: 'success',
+      //     message: '删除成功!'
+      //   })
+      // }).catch(() => {
+      //   this.$message({
+      //     type: 'info',
+      //     message: '已取消删除'
+      //   })
+      // })
       // return false 禁用自带的删除功能
-      return false
+      // return false
     },
     savePro () {
       let errorMsg = ''
@@ -1335,7 +1362,7 @@ export default {
         name: data.name,
         image: {
           file_data: data.image,
-          delete_data: []
+          delete_data: data.deleteImage
         },
         client_name: data.client_name,
         style_code: data.type,
@@ -1387,7 +1414,8 @@ export default {
           price: ''
         }],
         store_id: '',
-        image: []
+        image: [],
+        deleteImage: []
       }
     },
     goUpdatePro (item) {

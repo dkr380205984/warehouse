@@ -32,7 +32,7 @@ const routes = [
       name: '采购单列表',
       component: () => import('../views/yarnOrderList.vue')
     }, {
-      path: '/yarnOrderDetail/:id',
+      path: '/yarnOrderDetail/:id/:type',
       name: '采购单详情',
       component: () => import('../views/yarnOrderDetail.vue')
     }, {

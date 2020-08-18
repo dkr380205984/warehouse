@@ -19,11 +19,11 @@
             </span>
             <span class="item">
               <div class="item_row">
-                <span class="label">供应商：</span>
+                <span class="label">{{itemT.action_type === '出库' ? '出库单位' : '供应商'}}：</span>
                 {{itemT.client_name}}
               </div>
               <div class="item_row">
-                <span class="label">入库时间：</span>
+                <span class="label">{{`${itemT.action_type}时间：`}}</span>
                 {{itemT.created_time}}
               </div>
             </span>
@@ -97,9 +97,9 @@
           </div>
         </div>
         <div class="footCtn">
-          <span class="item">制单人：</span>
+          <span class="item">制单人：{{user_name}}</span>
           <span class="item">产品交接人：</span>
-          <span class="item">入库人：</span>
+          <span class="item">{{itemT.action_type}}人：</span>
         </div>
       </div>
     </template>

@@ -91,23 +91,23 @@ export default {
               window.sessionStorage.setItem('company_name', resp.data.data.company_name)
               window.sessionStorage.setItem('logo', resp.data.data.company_logo)
               window.sessionStorage.setItem('telephone', resp.data.data.telephone)
+              window.localStorage.setItem('zhUsername', _this.telephone)
+              if (_this.remPsd) {
+                window.localStorage.setItem('zhPassword', _this.password)
+              } else {
+                window.localStorage.setItem('zhPassword', '')
+              }
+              if (_this.$route.query.nextUrl) {
+                _this.$router.push(_this.$route.query.nextUrl)
+              } else {
+                _this.$router.push('/proStoreDetail')
+              }
             }
           })
           // window.sessionStorage.setItem('module_id', JSON.stringify(res.data.data.module_id))
           // window.sessionStorage.setItem('has_check', res.data.data.has_check)
           // window.sessionStorage.setItem('user_id', res.data.data.user_id)
           // window.sessionStorage.setItem('group_name', res.data.data.group_name)
-          window.localStorage.setItem('zhUsername', _this.telephone)
-          if (_this.remPsd) {
-            window.localStorage.setItem('zhPassword', _this.password)
-          } else {
-            window.localStorage.setItem('zhPassword', '')
-          }
-          if (_this.$route.query.nextUrl) {
-            _this.$router.push(_this.$route.query.nextUrl)
-          } else {
-            _this.$router.push('/proStoreDetail')
-          }
         } else {
           this.$message.error({
             message: res.data.message

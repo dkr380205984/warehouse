@@ -2,6 +2,35 @@
   <div id="yarnOrderDetail"
     class="contentMain"
     v-loading="loading">
+    <div class="listCutCtn">
+      <div class="cut_item"
+        :class="{'active':type === 1}"
+        @click="type !== 1 ? type = 1 : false">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-wuliaoruku"></use>
+        </svg>
+        <span class="name">物料入库</span>
+      </div>
+      <div class="cut_item"
+        :class="{'active':type === 2}"
+        @click="type !== 2 ? type = 2 : false">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-wuliaochuku"></use>
+        </svg>
+        <span class="name">物料出库</span>
+      </div>
+      <div class="cut_item"
+        :class="{'active':type === 3}"
+        @click="type !== 3 ? type = 3 : false">
+        <svg class="iconFont"
+          aria-hidden="true">
+          <use xlink:href="#icon-wuliaohuiku"></use>
+        </svg>
+        <span class="name">物料回库</span>
+      </div>
+    </div>
     <div class="module">
       <div class="titleCtn">
         <span class="title">采购单信息</span>
@@ -37,21 +66,53 @@
         </div>
       </div>
       <div class="listCtn">
-        <div class="tableCtnLv2">
-          <div class="tb_header bigPadding">
-            <span class="tb_row two_line"
-              style="flex:0.3"></span>
-            <span class="tb_row two_line">纱线名称</span>
-            <span class="tb_row">单价</span>
-            <span class="tb_row">颜色</span>
-            <span class="tb_row">订购数量</span>
-            <span class="tb_row">入库数量</span>
-            <span class="tb_row">入库总价</span>
-            <span class="tb_row middle">操作</span>
+        <template v-if="type === 1">
+          <div class="btnCtn"
+            style="display:flex;justify-content:flex-end;margin-bottom:8px">
+            <div class="btn btnWhiteBlue"
+              @click="printOrder">批量打印采购单</div>
           </div>
-          <el-collapse>
-            <el-collapse-item v-for="(item,index) in yarnOrderDetail.material_info"
+          <div class="tableCtnLv2">
+            <div class="tb_header bigPadding">
+              <span class="tb_row two_line"
+                style="flex:0.3"></span>
+              <span class="tb_row two_line">纱线名称</span>
+              <span class="tb_row">单价</span>
+              <span class="tb_row">颜色</span>
+              <span class="tb_row">订购数量</span>
+              <span class="tb_row">入库数量</span>
+              <span class="tb_row">入库总价</span>
+              <span class="tb_row middle">操作</span>
+            </div>
+            <div class="tb_content bigPadding"
+              v-for="(item,index) in material_info"
               :key="index">
+              <span class="tb_row "
+                style="flex:0.3">
+                <el-checkbox v-model="item.check"></el-checkbox>
+              </span>
+              <span class="tb_row two_line">{{item.material_name}}</span>
+              <span class="tb_row">{{item.price}}元</span>
+              <span class="tb_row">{{item.material_attribute}}</span>
+              <span class="tb_row"
+                style="color:#1a95ff">{{item.weight}}{{item.unit}}</span>
+              <span class="tb_row"
+                style="color:#E6A23C">{{item.in_weight?item.in_weight:0}}{{item.unit}}</span>
+              <span class="tb_row"
+                style="color:#01B48C">{{item.in_weight?Number(item.price*item.in_weight):0}}元</span>
+              <span class="tb_row middle">
+                <span class="tb_handle_btn blue"
+                  @click.stop="addOpr(type,item.id,item.price,item.weight,item.material_name,item.material_attribute)">{{type === 1 ? '入' : type === 2 ? '出' : '回'}}库</span>
+                <!-- <span class="tb_handle_btn blue"
+                v-else-if="type === 2"
+                @click.stop="addOpr(2,item.id,item.price,item.weight,item.material_name,item.material_attribute)">出库</span>
+              <span class="tb_handle_btn blue"
+                v-else-if="type === 3"
+                @click.stop="addOpr(3,item.id,item.price,item.weight,item.material_name,item.material_attribute)">回库</span> -->
+              </span>
+            </div>
+            <!-- <el-collapse>
+            <el-collapse-item>
               <div slot="title"
                 class="tb_collapse tb_content bigPadding">
                 <span class="tb_row two_line"
@@ -69,10 +130,13 @@
                   style="color:#01B48C">{{item.in_weight?Number(item.price*item.in_weight):0}}元</span>
                 <span class="tb_row middle">
                   <span class="tb_handle_btn blue"
+                    v-if="type === 1"
                     @click.stop="addOpr(1,item.id,item.price,item.weight,item.material_name,item.material_attribute)">入库</span>
                   <span class="tb_handle_btn blue"
+                    v-else-if="type === 2"
                     @click.stop="addOpr(2,item.id,item.price,item.weight,item.material_name,item.material_attribute)">出库</span>
                   <span class="tb_handle_btn blue"
+                    v-else-if="type === 3"
                     @click.stop="addOpr(3,item.id,item.price,item.weight,item.material_name,item.material_attribute)">回库</span>
                 </span>
               </div>
@@ -147,8 +211,45 @@
                 </div>
               </div>
             </el-collapse-item>
-          </el-collapse>
-        </div>
+          </el-collapse> -->
+          </div>
+        </template>
+        <template v-else>
+          <div class="tableCtnLv2">
+            <div class="tb_header">
+              <span class="tb_row">物料名称</span>
+              <span class="tb_row">颜色/属性</span>
+              <span class="tb_row">批/缸号</span>
+              <span class="tb_row">色号</span>
+              <span class="tb_row">数量</span>
+              <span class="tb_row">件数</span>
+              <span class="tb_row">仓库</span>
+              <span class="tb_row"
+                v-if="type == 3">出库单位</span>
+              <span class="tb_row">{{type === 2 ? '入' : '出'}}库时间</span>
+              <span class="tb_row middle">操作</span>
+            </div>
+            <div class="tb_content"
+              v-for="(item,index) in material_info"
+              :key="index">
+              <span class="tb_row">{{item.material_name}}</span>
+              <span class="tb_row">{{item.material_attribute}}</span>
+              <span class="tb_row">{{item.vat_code || '/'}}</span>
+              <span class="tb_row">{{item.color_code || '/'}}</span>
+              <span class="tb_row"
+                style="color:#01B48C">{{item.weight}}</span>
+              <span class="tb_row">{{item.number}}</span>
+              <span class="tb_row">{{item.store_name}}</span>
+              <span class="tb_row"
+                v-if="type === 3">{{item.client_name}}</span>
+              <span class="tb_row">{{item.complete_time}}</span>
+              <span class="tb_row middle">
+                <span class="tb_handle_btn blue"
+                  @click.stop="addOpr(type,item.order_id,item.price,item.weight,item.material_name,item.material_attribute,item.vat_code,item.color_code,item.store_id)">{{type === 2 ? '出' : '回'}}库</span>
+              </span>
+            </div>
+          </div>
+        </template>
         <div class="createModule"
           v-for="(item,index) in formData"
           :key="index">
@@ -288,15 +389,79 @@
         </div>
       </div>
     </div>
+    <div class="module">
+      <div class="titleCtn">
+        <span class="title">物料{{type === 1 ? '入库' : type === 2 ? '出库' : '回库'}}日志</span>
+      </div>
+      <div class="listCtn"
+        style="border-top:none">
+        <div class="btnCtn"
+          style="display:flex;justify-content:flex-end;margin-bottom:8px">
+          <div class="btn btnWhiteBlue"
+            @click="printAll">批量打印{{type === 1 ? '入库' : type === 2 ? '出库' : '回库'}}单</div>
+        </div>
+        <div class="tableCtnLv2">
+          <div class="tb_header">
+            <span class="tb_row"
+              style="flex:0.3">
+              <el-checkbox v-model="checkedAll"
+                @change="checkedAllLog"></el-checkbox>
+            </span>
+            <span class="tb_row">物料名称</span>
+            <span class="tb_row">颜色/属性</span>
+            <span class="tb_row">批/缸号</span>
+            <span class="tb_row">色号</span>
+            <span class="tb_row">数量</span>
+            <span class="tb_row">件数</span>
+            <span class="tb_row">仓库</span>
+            <span class="tb_row"
+              v-if="type !== 1">{{type === 2 ? '出库' : '回库'}}单位</span>
+            <span class="tb_row">{{type === 1 ? '入' : type === 2 ? '出' : '回'}}库总价</span>
+            <span class="tb_row">{{type === 1 ? '入' : type === 2 ? '出' : '回'}}库时间</span>
+            <span class="tb_row">备注</span>
+            <span class="tb_row">操作人</span>
+            <span class="tb_row middle">操作</span>
+          </div>
+          <div class="tb_content"
+            v-for="(itemLog,indexLog) in stockLog"
+            :key="indexLog">
+            <span class="tb_row"
+              style="flex:0.3">
+              <el-checkbox v-model="itemLog.checked"
+                @change="$forceUpdate()"></el-checkbox>
+            </span>
+            <span class="tb_row">{{itemLog.material_name}}</span>
+            <span class="tb_row">{{itemLog.material_attribute}}</span>
+            <span class="tb_row">{{itemLog.vat_code}}</span>
+            <span class="tb_row">{{itemLog.color_code}}</span>
+            <span class="tb_row">{{itemLog.weight}}</span>
+            <span class="tb_row">{{itemLog.number}}</span>
+            <span class="tb_row">{{itemLog.store_name}}</span>
+            <span class="tb_row"
+              v-if="type !== 1">{{itemLog.client_name}}</span>
+            <span class="tb_row">{{itemLog.total_price}}</span>
+            <span class="tb_row">{{itemLog.complete_time}}</span>
+            <span class="tb_row">{{itemLog.desc}}</span>
+            <span class="tb_row">{{itemLog.user_name}}</span>
+            <span class="tb_row middle">
+              <span class="tb_handle_btn orange"
+                @click.stop="openWin(`/print/${type === 1 ? 'go' : type === 2 ? 'out' : 'back'}StockTable/${$route.params.id}?logId=${itemLog.id}`)">打印</span>
+              <span class="tb_handle_btn red"
+                @click="deleteLog(itemLog.id)">删除</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="bottomFixBar">
       <div class="main">
         <div class="btnCtn">
           <div class="btn btnGray"
             @click="$router.go(-1)">返回</div>
-          <div class="btn btnBlue"
+          <!-- <div class="btn btnBlue"
             @click="printOrder">批量打印采购单</div>
           <div class="btn btnBlue"
-            @click="printAll">批量打印出入库</div>
+            @click="printAll">批量打印出入库</div> -->
         </div>
       </div>
     </div>
@@ -321,15 +486,30 @@ export default {
         order_code: '',
         order_time: '',
         material_info: []
-      }
+      },
+      material_info: [],
+      type: 1, // 1入库2出库3回库
+      stockLog: [],
+      checkedAll: false
+    }
+  },
+  watch: {
+    type (newVal) {
+      this.cutType(this.yarnOrderDetail)
     }
   },
   methods: {
+    checkedAllLog (e) {
+      this.stockLog.forEach(item => {
+        item.checked = e
+      })
+      this.$forceUpdate()
+    },
     openWin (url) {
       window.open(url)
     },
     printOrder () {
-      const idArr = this.yarnOrderDetail.material_info.filter((item) => item.check).map((item) => item.id)
+      const idArr = this.material_info.filter((item) => item.check).map((item) => item.id)
       if (idArr.length === 0) {
         this.$message.error('请选择采购单')
         return
@@ -342,20 +522,20 @@ export default {
         out: [],
         back: []
       }
-      this.yarnOrderDetail.material_info.forEach((item) => {
-        item.logList.forEach((itemChild) => {
-          if (itemChild.check) {
-            if (itemChild.action_type === 1) {
-              idArr.in.push(itemChild.id)
-            }
-            if (itemChild.action_type === 2) {
-              idArr.out.push(itemChild.id)
-            }
-            if (itemChild.action_type === 3) {
-              idArr.back.push(itemChild.id)
-            }
+      this.stockLog.forEach((item) => {
+        // item.logList.forEach((itemChild) => {
+        if (item.checked) {
+          if (item.action_type === 1) {
+            idArr.in.push(item.id)
           }
-        })
+          if (item.action_type === 2) {
+            idArr.out.push(item.id)
+          }
+          if (item.action_type === 3) {
+            idArr.back.push(item.id)
+          }
+        }
+        // })
       })
       if (idArr.in.length === 0 && idArr.out.length === 0 && idArr.back.length === 0) {
         this.$message.error('请选择需要打印的日志')
@@ -480,43 +660,64 @@ export default {
             }
           })
         })
-        console.log(this.yarnOrderDetail)
+        this.cutType(this.yarnOrderDetail)
         this.$forceUpdate()
+        this.loading = false
+      })
+    },
+    cutType (data) {
+      this.formData = []
+      if (this.type === 1) {
+        this.stockLog = data.stock_log.filter(itemF => itemF.action_type === 1)
+        this.material_info = data.material_info
+      } else if (this.type === 2) {
+        this.stockLog = data.stock_log.filter(itemF => itemF.action_type === 2)
+        this.material_info = data.stock_log.filter(itemF => itemF.action_type === 1)
+      } else if (this.type === 3) {
+        this.stockLog = data.stock_log.filter(itemF => itemF.action_type === 3)
+        this.material_info = data.stock_log.filter(itemF => itemF.action_type === 2)
+      } else {
+        this.$message.error('未知错误，请刷新页面重试')
+      }
+    },
+    init () {
+      Promise.all([
+        yarnOrder.detail({
+          id: this.$route.params.id
+        }),
+        store.list({
+          type: 2
+        })
+      ]).then((res) => {
+        this.yarnOrderDetail = res[0].data.data
+        this.nameColorArr = res[0].data.data.material_info.map((item) => {
+          return {
+            name: item.material_name + '/' + item.material_attribute,
+            id: item.id
+          }
+        })
+        this.storeList = res[1].data.data
+        this.yarnOrderDetail.material_info.forEach((item) => {
+          item.logList = []
+          item.in_weight = this.yarnOrderDetail.stock_log.reduce((total, current) => {
+            if (current.action_type === 1 && item.material_name === current.material_name && item.material_attribute === current.material_attribute) {
+              return total + current.weight
+            }
+            return total
+          }, 0)
+          this.yarnOrderDetail.stock_log.forEach((itemLog) => {
+            if (itemLog.order_id === item.id) {
+              item.logList.push(itemLog)
+            }
+          })
+        })
+        this.cutType(this.yarnOrderDetail)
         this.loading = false
       })
     }
   },
   mounted () {
-    Promise.all([yarnOrder.detail({
-      id: this.$route.params.id
-    }), store.list({
-      type: 2
-    })]).then((res) => {
-      console.log(res)
-      this.yarnOrderDetail = res[0].data.data
-      this.nameColorArr = res[0].data.data.material_info.map((item) => {
-        return {
-          name: item.material_name + '/' + item.material_attribute,
-          id: item.id
-        }
-      })
-      this.storeList = res[1].data.data
-      this.yarnOrderDetail.material_info.forEach((item) => {
-        item.logList = []
-        item.in_weight = this.yarnOrderDetail.stock_log.reduce((total, current) => {
-          if (current.action_type === 1 && item.material_name === current.material_name && item.material_attribute === current.material_attribute) {
-            return total + current.weight
-          }
-          return total
-        }, 0)
-        this.yarnOrderDetail.stock_log.forEach((itemLog) => {
-          if (itemLog.order_id === item.id) {
-            item.logList.push(itemLog)
-          }
-        })
-      })
-      this.loading = false
-    })
+    this.init()
   }
 }
 </script>
