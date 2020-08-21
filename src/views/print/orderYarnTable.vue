@@ -42,9 +42,9 @@
           :key="index">
           <span class="row_item w80 center">{{index+1}}</span>
           <span class="row_item left">{{item.material_name}}</span>
-          <span class="row_item w180 right">{{item.price || 0}}元/kg</span>
+          <span class="row_item w180 right">{{item.price || 0}}元/{{item.unit || 'kg'}}</span>
           <span class="row_item w180 left">{{item.material_attribute}}</span>
-          <span class="row_item w180 right">{{item.weight}}kg</span>
+          <span class="row_item w180 right">{{item.weight}}{{item.unit || 'kg'}}</span>
         </div>
         <div class="print_row bgGray">
           <span class="row_item left noBorder">合计</span>
@@ -79,7 +79,9 @@ export default {
       }).then(res => {
         if (res.data.status !== false) {
           this.info = res.data.data
-          this.info.material_info = this.info.material_info.filter(itemF => logIdArr.indexOf(itemF.id) !== -1)
+          if (logIdArr) {
+            this.info.material_info = this.info.material_info.filter(itemF => logIdArr.indexOf(itemF.id.toString()) !== -1)
+          }
         }
         this.loading = false
         setTimeout(() => {
