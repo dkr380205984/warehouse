@@ -60,6 +60,91 @@
               @close="deleteLocal(item,'yarnclient')">{{item}}</el-tag>
           </div>
         </div>
+        <div class="line">
+          <div class="label">产品打印设置：</div>
+          <div class="tagCtn inputCtn">
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.pro_out"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">出库标题</template>
+            </el-input>
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.pro_in"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">入库标题</template>
+            </el-input>
+          </div>
+        </div>
+        <div class="line">
+          <div class="label">原料打印设置：</div>
+          <div class="tagCtn inputCtn">
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.raw_order"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">采购标题</template>
+            </el-input>
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.raw_in"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">入库标题</template>
+            </el-input>
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.raw_out"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">出库标题</template>
+            </el-input>
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.raw_back"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">回库标题</template>
+            </el-input>
+          </div>
+        </div>
+        <div class="line">
+          <div class="label">辅料打印设置：</div>
+          <div class="tagCtn inputCtn">
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.material_order"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">采购标题</template>
+            </el-input>
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.material_in"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">入库标题</template>
+            </el-input>
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.material_out"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">出库标题</template>
+            </el-input>
+            <el-input class="inputCont"
+              placeholder="请输入标题"
+              v-model="zhkj_erp_print_info.material_back"
+              clearable
+              @change="setPrintTitle">
+              <template slot="prepend">回库标题</template>
+            </el-input>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -74,7 +159,19 @@ export default {
       localYarnnameArr: [],
       localClientArr: [],
       localColorArr: [],
-      localSizeArr: []
+      localSizeArr: [],
+      zhkj_erp_print_info: {
+        pro_out: '',
+        pro_in: '',
+        raw_order: '',
+        raw_in: '',
+        raw_out: '',
+        raw_back: '',
+        material_order: '',
+        material_in: '',
+        material_out: '',
+        material_back: ''
+      }
     }
   },
   methods: {
@@ -103,6 +200,10 @@ export default {
         this.localYarnnameArr.splice(this.localYarnnameArr.indexOf(item), 1)
         window.localStorage.setItem('yarnname', JSON.stringify(this.localYarnnameArr))
       }
+    },
+    setPrintTitle (e) {
+      window.localStorage.setItem('zhkj_erp_print_info', JSON.stringify(this.zhkj_erp_print_info))
+      this.$message.success('设置成功')
     }
   },
   mounted () {
@@ -112,6 +213,7 @@ export default {
     this.localClientArr = JSON.parse(window.localStorage.getItem('client')) || []
     this.localColorArr = JSON.parse(window.localStorage.getItem('color')) || []
     this.localSizeArr = JSON.parse(window.localStorage.getItem('size')) || []
+    this.zhkj_erp_print_info = Object.assign({}, this.zhkj_erp_print_info, JSON.parse(window.localStorage.getItem('zhkj_erp_print_info')))
   }
 }
 </script>

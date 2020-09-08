@@ -445,7 +445,7 @@
             <span class="tb_row">{{itemLog.user_name}}</span>
             <span class="tb_row middle">
               <span class="tb_handle_btn orange"
-                @click.stop="openWin(`/print/${type === 1 ? 'go' : type === 2 ? 'out' : 'back'}StockTable/${$route.params.id}?logId=${itemLog.id}`)">打印</span>
+                @click.stop="openWin(`/print/${type === 1 ? 'go' : type === 2 ? 'out' : 'back'}StockTable/${$route.params.id}/${$route.params.type}?logId=${itemLog.id}`)">打印</span>
               <span class="tb_handle_btn red"
                 @click="deleteLog(itemLog.id)">删除</span>
             </span>
@@ -514,7 +514,7 @@ export default {
         this.$message.error('请选择采购单')
         return
       }
-      window.open('/print/orderYarnTable/' + this.$route.params.id + '?logId=' + idArr.join('-'))
+      window.open(`/print/orderYarnTable/${this.$route.params.id}/${this.$route.params.type}?logId=${idArr.join('-')}`)
     },
     printAll () {
       const idArr = {
@@ -546,13 +546,13 @@ export default {
         return
       }
       if (idArr.in.length > 0) {
-        window.open('/print/goStockTable/' + this.$route.params.id + '?logId=' + idArr.in.join('-'), '_blank')
+        window.open(`/print/goStockTable/${this.$route.params.id}/${this.$route.params.type}?logId=${idArr.in.join('-')}`, '_blank')
       }
       if (idArr.out.length > 0) {
-        window.open('/print/outStockTable/' + this.$route.params.id + '?logId=' + idArr.out.join('-'), '_blank')
+        window.open(`/print/outStockTable/${this.$route.params.id}/${this.$route.params.type}?logId=${idArr.in.join('-')}`, '_blank')
       }
       if (idArr.back.length > 0) {
-        window.open('/print/backStockTable/' + this.$route.params.id + '?logId=' + idArr.back.join('-'), '_blank')
+        window.open(`/print/backStockTable/${this.$route.params.id}/${this.$route.params.type}?logId=${idArr.in.join('-')}`, '_blank')
       }
     },
     deleteData (index) {

@@ -45,19 +45,19 @@ const routes = [
       component: () => import('../views/setting.vue')
     }]
   }, {
-    path: '/print/goStockTable/:id',
+    path: '/print/goStockTable/:id/:type',
     name: 'goStockTable',
     component: () => import('../views/print/goStockTable.vue')
   }, {
-    path: '/print/outStockTable/:id',
+    path: '/print/outStockTable/:id/:type',
     name: 'outStockTable',
     component: () => import('../views/print/outStockTable.vue')
   }, {
-    path: '/print/backStockTable/:id',
+    path: '/print/backStockTable/:id/:type',
     name: 'backStockTable',
     component: () => import('../views/print/backStockTable.vue')
   }, {
-    path: '/print/orderYarnTable/:id',
+    path: '/print/orderYarnTable/:id/:type',
     name: 'orderYarnTable',
     component: () => import('../views/print/orderYarnTable.vue')
   }, {

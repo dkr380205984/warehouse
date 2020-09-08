@@ -91,6 +91,8 @@ export default {
     }
   },
   created () {
+    let printInfo = window.localStorage.getItem('zhkj_erp_print_info')
+    this.title = (printInfo && JSON.parse(printInfo) && (this.$route.params.type === '2' ? JSON.parse(printInfo).material_order : JSON.parse(printInfo).raw_order)) || this.title
     this.init(this.$route.params.id, this.$route.query.logId ? this.$route.query.logId.split('-').map(itemM => +itemM) : null)
   },
   computed: {
@@ -102,7 +104,7 @@ export default {
   },
   mounted () {
     const QRCode = require('qrcode')
-    QRCode.toDataURL(window.location.origin + '/yarnOrderDetail/' + this.$route.params.id, { errorCorrectionLevel: 'H' }, (err, url) => {
+    QRCode.toDataURL(`${window.location.origin}/yarnOrderDetail/${this.$route.params.id}/${this.$route.params.type}`, { errorCorrectionLevel: 'H' }, (err, url) => {
       if (!err) {
         this.qrCodeUrl = url
       }

@@ -6,7 +6,7 @@
         :key="indexT">
         <div class="print_head leftRight">
           <div class="left">
-            <span class="title">{{`${title}${itemT.action_type}单`}}</span>
+            <span class="title">{{itemT.title || `${title}${itemT.action_type}单`}}</span>
             <span class="item">
               <div class="item_row">
                 <span class="label">创建时间：</span>
@@ -124,9 +124,11 @@ export default {
         id: id
       }).then(res => {
         if (res.data.status !== false) {
+          const printInfo = (window.localStorage.getItem('zhkj_erp_print_info') && JSON.parse(window.localStorage.getItem('zhkj_erp_print_info'))) || {}
           this.allData = this.$mergeData(res.data.data.map(item => {
             return {
               action_type: item.action_type === 1 ? '入库' : '出库',
+              title: item.action_type === 1 ? printInfo.pro_in : printInfo.pro_out,
               client_name: item.client_name,
               created_time: this.$getTime(item.created_at),
               number: item.number,
@@ -147,7 +149,8 @@ export default {
               { name: 'product_code' },
               { name: 'image' },
               { name: 'product_name' },
-              { name: 'style_code' }
+              { name: 'style_code' },
+              { name: 'title' }
             ],
             childrenName: 'size_info',
             childrenRule: {
@@ -176,6 +179,7 @@ export default {
             })
             return {
               action_type: itemPro.action_type,
+              title: itemPro.title,
               client_name: itemPro.client_name,
               created_time: itemPro.created_time,
               product_id: itemPro.product_id,

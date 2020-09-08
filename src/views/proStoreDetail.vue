@@ -10,7 +10,7 @@
           aria-hidden="true">
           <use xlink:href="#icon-wuliaojihua"></use>
         </svg>
-        <span class="name">产品列表</span>
+        <span class="name">产品库存列表</span>
       </div>
       <div class="cut_item"
         :class="{'active':!showProList}"
@@ -19,7 +19,7 @@
           aria-hidden="true">
           <use xlink:href="#icon-wuliaochuruku"></use>
         </svg>
-        <span class="name">仓库列表</span>
+        <span class="name">产品库存日志</span>
       </div>
     </div>
     <div class="module"
@@ -53,232 +53,6 @@
           </div>
         </div>
         <div class="list">
-          <!-- <div class="flexTb"
-            style="border-bottom:0">
-            <div class="thead">
-              <div class="trow">
-                <div class="tcolumn">产品编号</div>
-                <div class="tcolumn">产品名称/款号</div>
-                <div class="tcolumn">产品图片</div>
-                <div class="tcolumn noPad"
-                  style="flex:8">
-                  <div class="trow">
-                    <div class="tcolumn">尺码配色</div>
-                    <div class="tcolumn">库存数量</div>
-                    <div class="tcolumn">销售数量</div>
-                    <div class="tcolumn">销售均价</div>
-                    <div class="tcolumn">销售总额</div>
-                    <div class="tcolumn">更新日期</div>
-                    <div class="tcolumn"
-                      style="flex:1.3;">操作</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="tbody">
-              <div class="trow"
-                v-for="item in productList"
-                :key="item.id">
-                <div class="tcolumn">{{item.product_code}}
-                  <div>
-                    <span style="cursor:pointer;color:#1a95ff;margin-right:12px"
-                      @click="goUpdatePro(item)">修改</span>
-                    <span style="cursor:pointer;color:rgb(245, 34, 45)"
-                      @click="deleteProReal(item.id)">删除产品</span>
-                  </div>
-                </div>
-                <div class="tcolumn">
-                  <span style="color:#1a95ff">{{item.name}}</span>
-                  <span>{{item.style_code}}</span></div>
-                <div class="tcolumn">
-                  <zh-img-list :list="item.image"></zh-img-list>
-                </div>
-                <div class="tcolumn noPad"
-                  style="flex:8">
-                  <div class="trow"
-                    v-for="(itemChild,indexChild) in item.size_info"
-                    :key="indexChild">
-                    <div class="tcolumn">{{itemChild.size_name}}/{{itemChild.color_name}}</div>
-                    <div class="tcolumn">{{itemChild.total_number}}</div>
-                    <div class="tcolumn">{{itemChild.sell_number}}</div>
-                    <div class="tcolumn">
-                      <div>
-                        <span style="color:#1a95ff">{{itemChild.sell_avg_price}}</span>元
-                      </div>
-                    </div>
-                    <div class="tcolumn">
-                      <div>
-                        <span style="color:#01B48C">{{itemChild.sell_total_price}}</span>元
-                      </div>
-                    </div>
-                    <div class="tcolumn">{{$getTime(itemChild.update_time)}}</div>
-                    <div class="tcolumn fuck"
-                      style="flex:1.3;justify-content: space-around;">
-                      <span class="btn noBorder self"
-                        @click="addPro(item.id,itemChild.id,1)">入库</span>
-                      <span class="btn noBorder self"
-                        @click="addPro(item.id,itemChild.id,2)">出库</span>
-                      <span class="btn noBorder self"
-                        style="color:rgb(245, 34, 45)"
-                        @click="deleteSizeColor(itemChild.id)">删除尺码</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="createModule"
-              v-for="(item,index) in productData"
-              :key="index">
-              <div class="deleteIconBtn"
-                @click="deletePro(index)">
-                <i class="el-icon-close"></i>
-              </div>
-              <div class="rowCtn">
-                <div class="colCtn">
-                  <div class="label">
-                    <span class="text">选择产品</span>
-                    <span class="explanation">(必填)</span>
-                  </div>
-                  <div class="content">
-                    <el-select placeholder="请选择产品编号"
-                      filterable
-                      remote
-                      :remote-method="searchProList"
-                      @change="getColorSize"
-                      v-model="item.id">
-                      <el-option v-for="item in proSelectList"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"></el-option>
-                    </el-select>
-                  </div>
-                </div>
-                <div class="colCtn">
-                  <div class="label">
-                    <span class="text">操作类型</span>
-                    <span class="explanation">(必填)</span>
-                  </div>
-                  <div class="content">
-                    <el-select placeholder="请选择操作类型"
-                      v-model="item.type">
-                      <el-option :value='1'
-                        label="入库"></el-option>
-                      <el-option :value='2'
-                        label="出库"></el-option>
-                    </el-select>
-                  </div>
-                </div>
-                <div class="colCtn">
-                  <div class="label">
-                    <span class="text">出入库单位</span>
-                    <span class="explanation">(选填)</span>
-                  </div>
-                  <div class="content">
-                    <el-input placeholder="请输入出入库单位名称"
-                      v-model="item.client"></el-input>
-                  </div>
-                </div>
-              </div>
-              <div class="rowCtn"
-                v-for="(itemChild,indexChild) in item.childrenArr"
-                :key="indexChild">
-                <div class="colCtn">
-                  <div class="label"
-                    v-if="indexChild===0">
-                    <span class="text">尺码颜色</span>
-                    <span class="explanation">(必填)</span>
-                  </div>
-                  <div class="content">
-                    <el-select placeholder="请选择尺码颜色"
-                      v-model="itemChild.colorSize">
-                      <el-option v-for="(itemSize,indexSize) in getColorSize(item.id)"
-                        :label="itemSize.size_name + '/' + itemSize.color_name"
-                        :value="itemSize.id"
-                        :key="indexSize"></el-option>
-                    </el-select>
-                  </div>
-                </div>
-                <div class="colCtn">
-                  <div class="label"
-                    v-if="indexChild===0">
-                    <span class="text">出/入库数量</span>
-                    <span class="explanation">(必填)</span>
-                  </div>
-                  <div class="content">
-                    <el-input placeholder="请输入数字"
-                      v-model="itemChild.number"></el-input>
-                  </div>
-                </div>
-                <div class="colCtn">
-                  <div class="label"
-                    v-if="indexChild===0">
-                    <span class="text">产品价格</span>
-                    <span class="explanation">(选填)</span>
-                  </div>
-                  <div class="content">
-                    <el-input placeholder="请输入价格"
-                      v-model="itemChild.price"></el-input>
-                  </div>
-                  <div class="editBtn addBtn"
-                    v-if="indexChild===0"
-                    @click="addChild(item.childrenArr)">添加</div>
-                  <div class="editBtn deleteBtn"
-                    v-if="indexChild>0"
-                    @click="deleteChild(item.childrenArr,indexChild)">删除</div>
-                </div>
-              </div>
-              <div class="rowCtn">
-                <div class="colCtn">
-                  <div class="label">
-                    <span class="text">请选择仓库/货架</span>
-                    <span class="explanation">(必填)</span>
-                  </div>
-                  <div class="content">
-                    <el-select placeholder="请选择仓库/货架"
-                      v-model="item.store_id">
-                      <el-option v-for="item in stockArr"
-                        :key="item.id"
-                        :value="item.id"
-                        :label="item.name"></el-option>
-                    </el-select>
-                  </div>
-                </div>
-                <div class="colCtn">
-                  <div class="label">
-                    <span class="text">产品总价</span>
-                    <span class="explanation">(必填)</span>
-                  </div>
-                  <div class="content">
-                    <span class="spanInput"> {{totalPrice(item.childrenArr)}}</span>
-                  </div>
-                </div>
-                <div class="colCtn">
-                  <div class="label">
-                    <span class="text">备注信息</span>
-                    <span class="explanation">(选填)</span>
-                  </div>
-                  <div class="content">
-                    <el-input placeholder="备注信息"
-                      v-model="value"></el-input>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="addRows">
-              <span v-if="!addProFlag"
-                class="once gray"
-                @click="addPro()">添加出入库</span>
-              <span v-if="addProFlag"
-                class="once cancle"
-                @click="cancle">取消</span>
-              <span v-if="addProFlag"
-                class="once normal"
-                @click="addPro">添加出入库</span>
-              <span v-if="addProFlag"
-                class="once ok"
-                @click="saveLog">保存</span>
-            </div>
-          </div> -->
           <div class="tableCtnLv2">
             <div class="tb_header">
               <div class="tb_row middle">产品编号</div>
@@ -307,7 +81,21 @@
                   <zh-img-list :list="itemPro.image"></zh-img-list>
                 </div>
                 <div class="tb_row"
-                  style="font-weight:bolder;font-size:16px">{{itemPro.total_number}}</div>
+                  style="font-weight:bolder;font-size:16px">
+                  <el-popover placement="right"
+                    trigger="hover"
+                    width="200">
+                    <el-table :data="itemPro.detail_number">
+                      <el-table-column width="120"
+                        property="store_name"
+                        label="仓库"></el-table-column>
+                      <el-table-column width="80"
+                        property="number"
+                        label="数量(件)"></el-table-column>
+                    </el-table>
+                    <span slot="reference">{{itemPro.total_number}}</span>
+                  </el-popover>
+                </div>
                 <div class="tb_row">{{itemPro.sell_total_number || 0}}</div>
                 <div class="tb_row"
                   style="color:#1a95ff">{{itemPro.sell_avg_price || 0}}</div>
@@ -320,10 +108,25 @@
                     @click.stop="addPro(itemPro.id,'',1)">入库</span>
                   <span class="tb_handle_btn blue"
                     @click.stop="addPro(itemPro.id,'',2)">出库</span>
-                  <span class="tb_handle_btn orange"
-                    @click.stop="goUpdatePro(itemPro)">修改</span>
-                  <span class="tb_handle_btn red"
-                    @click="deleteProReal(itemPro.id)">删除</span>
+                  <span class="tb_handle_btn blue"
+                    @click="showProList = false;storeName = itemPro.name;getStoreLogList()">日志</span>
+                  <span class="tb_handle_btn blue"
+                    @click.stop="()=>{}">
+                    <el-dropdown>
+                      <span class="el-dropdown-link"
+                        style="color:#1A95FF">
+                        更多<i class="el-icon-arrow-down el-icon--right"></i>
+                      </span>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item @click.native="goUpdatePro(itemPro)">
+                          <span class="btn orange">修改</span>
+                        </el-dropdown-item>
+                        <el-dropdown-item @click.native="deleteProReal(itemPro.id)">
+                          <span class="btn red">删除</span>
+                        </el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                  </span>
                 </div>
               </div>
               <div class="collapse_item"
@@ -364,7 +167,21 @@
                         </span>
                         <span class="tb_row">{{`${itemSC.size_name}/${itemSC.color_name}`}}</span>
                         <span class="tb_row right"
-                          style="font-weight:bolder;font-size:16px">{{itemSC.total_number}}</span>
+                          style="font-weight:bolder;font-size:16px">
+                          <el-popover placement="right"
+                            trigger="hover"
+                            width="200">
+                            <el-table :data="itemSC.detail_number">
+                              <el-table-column width="120"
+                                property="store_name"
+                                label="仓库"></el-table-column>
+                              <el-table-column width="80"
+                                property="number"
+                                label="数量(件)"></el-table-column>
+                            </el-table>
+                            <span slot="reference">{{itemSC.total_number}}</span>
+                          </el-popover>
+                        </span>
                         <span class="tb_row max40"></span>
                         <span class="tb_row">{{itemSC.avg_price}}</span>
                         <span class="tb_row">{{itemSC.total_price}}</span>
@@ -578,19 +395,30 @@
               @change="getStoreLogList"
               placeholder="选择日期">
             </el-date-picker>
-            <div class="btn btnBlue"
-              style="margin-left:0px"
-              @click="getStoreLogList">搜索</div>
+            <el-select class="inputs"
+              v-model="handleType"
+              placeholder="筛选操作类型"
+              clearable
+              @change="getStoreLogList">
+              <el-option v-for="item in handleTypeArr"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
             <div class="btn btnGray"
               style="margin-left:12px"
               @click="reset('store')">重置</div>
           </div>
           <div class="leftCtn">
             <div class="btn noBorder"
+              style="padding:0"
               @click="deleteLog(null,true)">批量删除</div>
             <div class="btn noBorder"
+              style="padding:0"
               @click="printTable()">批量打印</div>
             <div class="btn noBorder"
+              style="padding:0"
               @click="download">批量导出</div>
           </div>
         </div>
@@ -646,6 +474,8 @@
                     style="flex-direction: row;align-items: center;justify-content: space-around;">
                     <span style="color:#F5222D;cursor:pointer"
                       @click="deleteLog(item.id)">删除</span>
+                    <span style="color:#1a95ff;cursor:pointer"
+                      @click="printTable([item.id])">打印</span>
                     <el-popover placement="top-start"
                       width="200"
                       trigger="click">
@@ -987,7 +817,18 @@ export default {
       localColorArr: [],
       localClientArr: [],
       // 2020-08-06-16-34新增
-      showProList: true
+      showProList: true,
+      handleType: '',
+      handleTypeArr: [
+        {
+          value: 1,
+          label: '入库'
+        },
+        {
+          value: 2,
+          label: '销售/出库'
+        }
+      ]
     }
   },
   methods: {
@@ -1111,6 +952,7 @@ export default {
         start_time: this.storeDate,
         end_time: y + '-' + m + '-' + d,
         page: this.pageStoreLog,
+        action_type: this.handleType || '',
         limit: 10
       }).then((res) => {
         this.storeLogList = res.data.data
@@ -1147,6 +989,9 @@ export default {
           itemM.updated_time = this.$getTime(itemM.size_info.map(itemS => (itemS.update_time ? new Date(itemS.update_time).getTime() : 0)).sort((a, b) => {
             return a - b
           })[0])
+          itemM.detail_number = this.$mergeData(itemM.size_info.map(itemMI => itemMI.detail_number || []).reduce((itemA, itemB) => {
+            return [].concat(itemA, itemB)
+          }), { mainRule: 'store_name', otherRule: [{ name: 'number', type: 'add' }] })
           itemM.show = false
           return itemM
         })
@@ -1652,6 +1497,7 @@ export default {
         this.storeName = ''
         this.storeDate = ''
         this.clientName = ''
+        this.handleType = ''
         this.getStoreLogList()
       }
     }
@@ -1690,6 +1536,9 @@ export default {
         itemM.updated_time = this.$getTime(itemM.size_info.map(itemS => (itemS.update_time ? new Date(itemS.update_time).getTime() : 0)).sort((a, b) => {
           return a - b
         })[0])
+        itemM.detail_number = this.$mergeData(itemM.size_info.map(itemMI => itemMI.detail_number || []).reduce((itemA, itemB) => {
+          return [].concat(itemA, itemB)
+        }), { mainRule: 'store_name', otherRule: [{ name: 'number', type: 'add' }] })
         itemM.show = false
         return itemM
       })
@@ -1705,4 +1554,18 @@ export default {
 
 <style lang="less" scoped>
 @import "~@/assets/less/storeDetail.less";
+</style>
+<style lang="less">
+.el-dropdown-menu__item {
+  .btn {
+    width: 100%;
+    height: 100%;
+    &.orange {
+      color: #e6a23c;
+    }
+    &.red {
+      color: #f5222d;
+    }
+  }
+}
 </style>

@@ -141,7 +141,7 @@
               <span class="opr"
                 @click="$router.push('/yarnOrderDetail/' + item.id + '/' + type)">详情</span>
               <span class="opr orange"
-                @click="openWin('/print/orderYarnTable/'+ item.id)">打印</span>
+                @click="openWin(`/print/orderYarnTable/${item.id}/${type}`)">打印</span>
               <span class="opr red"
                 @click="deleteOrder(item.id)">删除</span>
             </div>
